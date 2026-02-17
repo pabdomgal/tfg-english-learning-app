@@ -1,0 +1,228 @@
+{
+  "Principiante": [
+    {
+      "id": "p_day_1",
+      "title": "Daily basics",
+      "vocab": [
+        { "word": "dog", "meaning": "perro" },
+        { "word": "house", "meaning": "casa" },
+        { "word": "work", "meaning": "trabajar" }
+      ],
+      "exercises": [
+        {
+          "id": "p_mc_1",
+          "type": "multiple_choice",
+          "prompt": "Selecciona el significado correcto de 'dog':",
+          "options": ["perro", "gato", "casa"],
+          "answer": "perro",
+          "tags": ["vocabulary"]
+        },
+        {
+          "id": "p_mc_2",
+          "type": "multiple_choice",
+          "prompt": "Selecciona el significado correcto de 'house':",
+          "options": ["coche", "casa", "árbol"],
+          "answer": "casa",
+          "tags": ["vocabulary"]
+        },
+        {
+          "id": "p_mc_3",
+          "type": "multiple_choice",
+          "prompt": "Completa la frase: I ___ in a house.",
+          "options": ["live", "lives", "living"],
+          "answer": "live",
+          "tags": ["grammar", "present_simple"]
+        },
+        {
+          "id": "p_mc_4",
+          "type": "multiple_choice",
+          "prompt": "Selecciona la frase correcta:",
+          "options": [
+            "He work every day.",
+            "He works every day.",
+            "He working every day."
+          ],
+          "answer": "He works every day.",
+          "tags": ["grammar", "present_simple"]
+        },
+        {
+          "id": "p_mc_5",
+          "type": "multiple_choice",
+          "prompt": "¿Qué significa 'work'?",
+          "options": ["trabajar", "comer", "dormir"],
+          "answer": "trabajar",
+          "tags": ["vocabulary"]
+        }
+      ]
+    }
+  ],
+  "Intermedio": [
+    {
+      "id": "i_day_1",
+      "title": "Daily routines",
+      "vocab": [
+        { "word": "commute", "meaning": "desplazarse al trabajo" },
+        { "word": "schedule", "meaning": "horario" },
+        { "word": "deadline", "meaning": "fecha límite" }
+      ],
+      "exercises": [
+        {
+          "id": "i_mc_1",
+          "type": "multiple_choice",
+          "prompt": "Completa la frase: I ___ to work every day.",
+          "options": ["go", "goes", "going"],
+          "answer": "go",
+          "tags": ["grammar", "present_simple"]
+        },
+        {
+          "id": "i_mc_2",
+          "type": "multiple_choice",
+          "prompt": "¿Cuál es la traducción correcta de 'deadline'?",
+          "options": ["horario", "fecha límite", "reunión"],
+          "answer": "fecha límite",
+          "tags": ["vocabulary"]
+        },
+        {
+          "id": "i_mc_3",
+          "type": "multiple_choice",
+          "prompt": "Completa: My work ___ is very busy this week.",
+          "options": ["schedule", "dog", "house"],
+          "answer": "schedule",
+          "tags": ["vocabulary"]
+        },
+        {
+          "id": "i_mc_4",
+          "type": "multiple_choice",
+          "prompt": "Selecciona la opción correcta: She ___ early on Mondays.",
+          "options": ["commute", "commutes", "commuting"],
+          "answer": "commutes",
+          "tags": ["grammar", "present_simple"]
+        },
+        {
+          "id": "i_mc_5",
+          "type": "multiple_choice",
+          "prompt": "Selecciona la frase más correcta:",
+          "options": [
+            "I have a deadline tomorrow.",
+            "I has a deadline tomorrow.",
+            "I having a deadline tomorrow."
+          ],
+          "answer": "I have a deadline tomorrow.",
+          "tags": ["grammar", "present_simple"]
+        }
+      ]
+    }
+  ],
+  "Avanzado": [
+    {
+      "id": "a_day_1",
+      "title": "Work & communication",
+      "vocab": [
+        { "word": "stakeholder", "meaning": "parte interesada" },
+        { "word": "to negotiate", "meaning": "negociar" },
+        { "word": "outcome", "meaning": "resultado" }
+      ],
+      "exercises": [
+        {
+          "id": "a_mc_1",
+          "type": "multiple_choice",
+          "prompt": "Selecciona la mejor traducción de 'outcome':",
+          "options": ["resultado", "proceso", "acuerdo"],
+          "answer": "resultado",
+          "tags": ["vocabulary", "business"]
+        },
+        {
+          "id": "a_mc_2",
+          "type": "multiple_choice",
+          "prompt": "¿Qué significa 'stakeholder' en un contexto de empresa?",
+          "options": ["parte interesada", "competidor", "recurso"],
+          "answer": "parte interesada",
+          "tags": ["vocabulary", "business"]
+        },
+        {
+          "id": "a_mc_3",
+          "type": "multiple_choice",
+          "prompt": "Completa: We need to ___ the terms before signing.",
+          "options": ["negotiate", "outcome", "schedule"],
+          "answer": "negotiate",
+          "tags": ["vocabulary", "business"]
+        },
+        {
+          "id": "a_mc_4",
+          "type": "multiple_choice",
+          "prompt": "Selecciona la frase más formal:",
+          "options": [
+            "Let's negotiate a better outcome.",
+            "Let's talk and see what happens.",
+            "We negotiate yesterday."
+          ],
+          "answer": "Let's negotiate a better outcome.",
+          "tags": ["business", "communication"]
+        },
+        {
+          "id": "a_mc_5",
+          "type": "multiple_choice",
+          "prompt": "Selecciona la opción correcta: The outcome ___ positive.",
+          "options": ["was", "were", "be"],
+          "answer": "was",
+          "tags": ["grammar", "past_simple"]
+        }
+      ]
+    },
+    {
+      "id": "a_day_2",
+      "title": "Meetings & decisions",
+      "vocab": [
+        { "word": "agenda", "meaning": "orden del día" },
+        { "word": "decision", "meaning": "decisión" },
+        { "word": "to propose", "meaning": "proponer" }
+      ],
+      "exercises": [
+        {
+          "id": "a2_mc_1",
+          "type": "multiple_choice",
+          "prompt": "¿Qué significa 'agenda'?",
+          "options": ["orden del día", "acuerdo", "resultado"],
+          "answer": "orden del día",
+          "tags": ["vocabulary", "business"]
+        },
+        {
+          "id": "a2_mc_2",
+          "type": "multiple_choice",
+          "prompt": "Completa: I want to ___ a new plan.",
+          "options": ["propose", "agenda", "deadline"],
+          "answer": "propose",
+          "tags": ["vocabulary", "business"]
+        },
+        {
+          "id": "a2_mc_3",
+          "type": "multiple_choice",
+          "prompt": "Selecciona la frase correcta:",
+          "options": [
+            "We makes a decision today.",
+            "We make a decision today.",
+            "We making a decision today."
+          ],
+          "answer": "We make a decision today.",
+          "tags": ["grammar", "present_simple"]
+        },
+        {
+          "id": "a2_mc_4",
+          "type": "multiple_choice",
+          "prompt": "¿Qué significa 'decision'?",
+          "options": ["decisión", "reunión", "parte interesada"],
+          "answer": "decisión",
+          "tags": ["vocabulary"]
+        },
+        {
+          "id": "a2_mc_5",
+          "type": "multiple_choice",
+          "prompt": "Selecciona la opción correcta: The decision ___ final.",
+          "options": ["is", "are", "be"],
+          "answer": "is",
+          "tags": ["grammar"]
+        }
+      ]
+    }
+  ]
+}
