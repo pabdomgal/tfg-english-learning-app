@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import { getActiveUser, setUserLevel } from "../services/storage";
@@ -8,10 +8,17 @@ export default function SelectLevel() {
   const { user } = useMemo(() => getActiveUser(), []);
   const [level, setLevel] = useState("Principiante");
 
-  if (!user) {
-    setTimeout(() => nav("/start", { replace: true }), 0);
-    return null;
-  }
+  useEffect(() => {
+    if (!user) {
+      nav("/start", { replace: true });
+      return;
+    }
+    if (user.level) {
+      nav("/menu", { replace: true });
+    }
+  }, [user, nav]);
+
+  if (!user || user.level) return null;
 
   function handleConfirm() {
     setUserLevel(level);

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import { getActiveUser, getLastSession } from "../services/storage";
 import { formatTag } from "../services/tagFormat";
+import { buildReviewSession } from "../services/lessonEngine";
 
 function shuffle(arr) {
   const a = [...arr];
@@ -60,7 +61,10 @@ export default function ReviewSession() {
     );
   }
 
-  const wrongItems = lastSession.wrongItems || [];
+  // ahora el motor decide qué errores practicar (limitados)
+  const wrongItemsAll = lastSession.wrongItems || [];
+  const wrongItems = buildReviewSession(wrongItemsAll, 3);
+
   const currentWrong = wrongItems[practiceIndex] || null;
 
   function startPractice() {
@@ -99,7 +103,7 @@ export default function ReviewSession() {
     }
   }
 
-  // -- VISTA: PRACTICAR ERRORES ---
+  // PRACTICAR ERRORE
   if (mode === "practice") {
     if (!currentWrong) {
       return (
@@ -189,7 +193,7 @@ export default function ReviewSession() {
     );
   }
 
-  // ------ VISTA: RESUMEN DE ERRORES -------
+  // RESUMEN DE ERRORES
   return (
     <div>
       <Header userName={user.name} levelName={user.level ?? "-"} />
@@ -199,6 +203,11 @@ export default function ReviewSession() {
         <p>
           Has fallado <strong>{lastSession.wrong}</strong> de{" "}
           <strong>{lastSession.total}</strong> ejercicios.
+        </p>
+
+        <p style={{ marginTop: "0.5rem" }}>
+          Se han seleccionado <strong>{wrongItems.length}</strong> errores para el
+          repaso (prioridad del motor).
         </p>
 
         <h3>Tipos de error más frecuentes</h3>

@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import { getActiveUser, saveSessionResult } from "../services/storage";
-import { getCurrentLesson } from "../services/lessonEngine";
+import { getCurrentLesson, buildDailySession } from "../services/lessonEngine";
 
 export default function DailySession() {
   const nav = useNavigate();
@@ -27,8 +27,15 @@ export default function DailySession() {
     return null;
   }
 
-  const lesson = getCurrentLesson(user.level);
-  const exercises = lesson?.exercises ?? [];
+  // Obtenemos el índice de la lección desde el usuario (si no existe, 0)
+  const lessonIndex = user.lessonIndexByLevel?.[user.level] ?? 0;
+
+  // La lección actual la decide el motor
+  const lesson = getCurrentLesson(user.level, lessonIndex);
+
+  // Los ejercicios diarios los decide el motor (limitados)
+  const levelSessions = user.levelProgress?.[user.level]?.sessions ?? 0;
+  const exercises = buildDailySession(user.level, lessonIndex, 5, levelSessions);
   const exercise = exercises[currentIndex] ?? null;
 
   function handleCancel() {
@@ -91,7 +98,7 @@ export default function DailySession() {
         : sessionResults;
 
       saveSessionResult({
-        lessonId: lesson.id,
+        lessonId: lesson?.id,
         results: safeResults,
         levelName: user.level,
         lessonsCountByLevel: {
