@@ -71,7 +71,7 @@ export function addUser(name) {
     level: null,
     stats: { sessions: 0, totalExercises: 0, correct: 0, wrong: 0 },
     levelProgress: createEmptyLevelProgress(),
-    lessonIndexByLevel: createEmptyLessonIndexByLevel(), // ✅ NUEVO
+    lessonIndexByLevel: createEmptyLessonIndexByLevel(), 
     history: [],
   };
 
@@ -107,7 +107,6 @@ export function getActiveUser() {
     saveState(state);
   }
 
-  //  lecciones
   if (user && !user.lessonIndexByLevel) {
     user.lessonIndexByLevel = createEmptyLessonIndexByLevel();
     saveState(state);
@@ -161,13 +160,11 @@ export function saveSessionResult({ lessonId, results, levelName, lessonsCountBy
 
   user.history.unshift(session);
 
-  // estadísticas globales
   user.stats.sessions += 1;
   user.stats.totalExercises += total;
   user.stats.correct += correct;
   user.stats.wrong += wrong;
 
-  // ---- progreso por nivel + criterio de finalización ----
   const lvl = levelName || user.level; 
   if (lvl && user.levelProgress[lvl]) {
     const lp = user.levelProgress[lvl];
@@ -180,14 +177,15 @@ export function saveSessionResult({ lessonId, results, levelName, lessonsCountBy
     if (!lp.completed && isLevelCompleted(lp, LEVEL_CRITERIA)) {
       lp.completed = true;
 
+      user.justCompletedLevel = lvl;
+
       const next = getNextLevel(lvl);
       if (next) {
-        user.level = next; // auto-subida de nivel
+        user.level = next; 
       }
     }
   }
 
-  // Avanzar en el camino de lecciones 
   if (lvl && user.lessonIndexByLevel && typeof user.lessonIndexByLevel[lvl] === "number") {
     const current = user.lessonIndexByLevel[lvl];
 

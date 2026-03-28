@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import { getActiveUser, saveSessionResult } from "../services/storage";
@@ -16,10 +16,13 @@ export default function DailySession() {
 
   // Estado del ejercicio actual
   const [selected, setSelected] = useState(null);
+  const [textAnswer, setTextAnswer] = useState("");
+  const [orderedWords, setOrderedWords] = useState([]);
+  const [availableWords, setAvailableWords] = useState([]);
   const [checked, setChecked] = useState(false);
   const [isCorrect, setIsCorrect] = useState(null);
 
-  // Guardado seguro del último resultado (por si setState aún no se reflejó)
+  // Guardado seguro del último resultado
   const [lastResult, setLastResult] = useState(null);
 
   if (!user) {
@@ -27,16 +30,21 @@ export default function DailySession() {
     return null;
   }
 
-  // Obtenemos el índice de la lección desde el usuario (si no existe, 0)
   const lessonIndex = user.lessonIndexByLevel?.[user.level] ?? 0;
-
-  // La lección actual la decide el motor
   const lesson = getCurrentLesson(user.level, lessonIndex);
 
-  // Los ejercicios diarios los decide el motor (limitados)
   const levelSessions = user.levelProgress?.[user.level]?.sessions ?? 0;
   const exercises = buildDailySession(user.level, lessonIndex, 5, levelSessions);
   const exercise = exercises[currentIndex] ?? null;
+
+  useEffect(() => {
+    if (exercise?.type === "order_words") {
+      setAvailableWords(exercise.options ?? []);
+      setOrderedWords([]);
+      setChecked(false);
+      setIsCorrect(null);
+    }
+  }, [exercise]);
 
   function handleCancel() {
     nav("/menu");
@@ -52,14 +60,70 @@ export default function DailySession() {
 
   function resetExerciseState() {
     setSelected(null);
+    setTextAnswer("");
+    setOrderedWords([]);
+    setAvailableWords(exercise?.type === "order_words" ? exercise.options ?? [] : []);
+    setChecked(false);
+    setIsCorrect(null);
+  }
+
+  function normalizeText(value) {
+    return String(value ?? "").trim().toLowerCase();
+  }
+
+  function handleAddWord(word, index) {
+    if (checked) return;
+
+    setOrderedWords((prev) => [...prev, word]);
+    setAvailableWords((prev) => prev.filter((_, i) => i !== index));
+    setChecked(false);
+    setIsCorrect(null);
+  }
+
+  function handleRemoveWord(wordIndex) {
+    if (checked) return;
+
+    const word = orderedWords[wordIndex];
+
+    setOrderedWords((prev) => prev.filter((_, i) => i !== wordIndex));
+    setAvailableWords((prev) => [...prev, word]);
+    setChecked(false);
+    setIsCorrect(null);
+  }
+
+  function handleResetWords() {
+    if (!exercise || exercise.type !== "order_words") return;
+
+    setOrderedWords([]);
+    setAvailableWords(exercise.options ?? []);
     setChecked(false);
     setIsCorrect(null);
   }
 
   function handleCheck() {
-    if (!exercise || selected === null) return;
+    if (!exercise) return;
 
-    const ok = selected === exercise.answer;
+    let userAnswer = null;
+    let ok = false;
+
+    if (exercise.type === "multiple_choice") {
+      if (selected === null) return;
+      userAnswer = selected;
+      ok = selected === exercise.answer;
+    }
+
+    if (exercise.type === "fill_blank") {
+      if (!textAnswer.trim()) return;
+      userAnswer = textAnswer.trim();
+      ok = normalizeText(userAnswer) === normalizeText(exercise.answer);
+    }
+
+    if (exercise.type === "order_words") {
+      if (!orderedWords.length) return;
+      userAnswer = orderedWords.join(" ");
+      ok = normalizeText(userAnswer) === normalizeText(exercise.answer);
+    }
+
     setChecked(true);
     setIsCorrect(ok);
 
@@ -67,15 +131,13 @@ export default function DailySession() {
       exerciseId: exercise.id,
       prompt: exercise.prompt,
       answer: exercise.answer,
-      selected,
+      selected: userAnswer,
       isCorrect: ok,
       tags: exercise.tags ?? [],
     };
 
-    // guardamos el último resultado de forma “segura”
     setLastResult(result);
 
-    // Evitar duplicados: reemplaza si ya existía ese exerciseId
     setSessionResults((prev) => {
       const withoutThis = prev.filter((r) => r.exerciseId !== result.exerciseId);
       return [...withoutThis, result];
@@ -89,7 +151,6 @@ export default function DailySession() {
       setCurrentIndex(nextIndex);
       resetExerciseState();
     } else {
-      // Fin de la sesión: construimos resultados finales “seguros”
       const safeResults = lastResult
         ? [
             ...sessionResults.filter((r) => r.exerciseId !== lastResult.exerciseId),
@@ -112,106 +173,287 @@ export default function DailySession() {
     }
   }
 
+  const isCheckDisabled =
+    !exercise ||
+    (exercise.type === "multiple_choice" && selected === null) ||
+    (exercise.type === "fill_blank" && !textAnswer.trim()) ||
+    (exercise.type === "order_words" && orderedWords.length === 0);
+
   return (
     <div>
       <Header userName={user.name} levelName={user.level ?? "-"} />
+
       <div style={{ padding: "1rem" }}>
-        <h2>Lección diaria</h2>
+        <div
+          style={{
+            background: "#ffffff",
+            border: "1px solid #d9e1f0",
+            borderRadius: "16px",
+            boxShadow: "0 10px 30px rgba(31, 42, 68, 0.08)",
+            padding: "1.5rem",
+          }}
+        >
+          <h2 style={{ marginBottom: "0.5rem" }}>Lección diaria</h2>
 
-        {/* mostrar qué lección es */}
-        {lesson && (
-          <p style={{ marginTop: "0.25rem" }}>
-            <strong>Lección actual:</strong> {lesson.title} ({lesson.id})
-          </p>
-        )}
+          {lesson && (
+            <p style={{ color: "#5b6780", marginBottom: "1.5rem" }}>
+              <strong style={{ color: "#16325c" }}>Lección actual:</strong> {lesson.title} ({lesson.id})
+            </p>
+          )}
 
-        {!lesson ? (
-          <>
-            <p>No hay lecciones cargadas para este nivel todavía.</p>
-            <button onClick={() => nav("/menu")}>Volver</button>
-          </>
-        ) : phase === "vocab" ? (
-          <>
-            <h3>Introducción de vocabulario</h3>
-            <p>Repasa las palabras clave que aparecerán en la lección.</p>
+          {!lesson ? (
+            <>
+              <p>No hay lecciones cargadas para este nivel todavía.</p>
+              <button onClick={() => nav("/menu")}>Volver</button>
+            </>
+          ) : phase === "vocab" ? (
+            <div
+              style={{
+                background: "#f8fbff",
+                border: "1px solid #d9e1f0",
+                borderRadius: "16px",
+                padding: "1.25rem",
+              }}
+            >
+              <h3 style={{ marginBottom: "0.5rem" }}>Introducción de vocabulario</h3>
+              <p style={{ color: "#5b6780", marginBottom: "1rem" }}>
+                Repasa las palabras clave que aparecerán en la lección.
+              </p>
 
-            <ul>
-              {lesson.vocab.map((v) => (
-                <li key={v.word}>
-                  <strong>{v.word}</strong> — {v.meaning}
-                </li>
-              ))}
-            </ul>
+              <ul style={{ marginBottom: "1.25rem" }}>
+                {lesson.vocab.map((v) => (
+                  <li key={v.word}>
+                    <strong>{v.word}</strong> — {v.meaning}
+                  </li>
+                ))}
+              </ul>
 
-            <button onClick={goToExercise}>Comenzar ejercicios</button>
-            <button onClick={handleCancel} style={{ marginLeft: "1rem" }}>
-              Cancelar sesión
-            </button>
-          </>
-        ) : (
-          <>
-            {!exercise ? (
-              <>
-                <p>No hay ejercicios definidos para esta lección.</p>
-                <button onClick={() => nav("/menu")}>Volver</button>
-              </>
-            ) : (
-              <>
-                <p>
-                  <strong>
-                    Ejercicio {currentIndex + 1} de {exercises.length}
-                  </strong>
-                </p>
+              <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+                <button onClick={goToExercise}>Comenzar ejercicios</button>
+                <button onClick={handleCancel}>Cancelar sesión</button>
+              </div>
+            </div>
+          ) : (
+            <>
+              {!exercise ? (
+                <>
+                  <p>No hay ejercicios definidos para esta lección.</p>
+                  <button onClick={() => nav("/menu")}>Volver</button>
+                </>
+              ) : (
+                <div
+                  style={{
+                    background: "#f8fbff",
+                    border: "1px solid #d9e1f0",
+                    borderRadius: "16px",
+                    padding: "1.25rem",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      flexWrap: "wrap",
+                      gap: "0.75rem",
+                      marginBottom: "1rem",
+                    }}
+                  >
+                    <p style={{ margin: 0, fontWeight: 700, color: "#16325c" }}>
+                      Ejercicio {currentIndex + 1} de {exercises.length}
+                    </p>
 
-                <p>{exercise.prompt}</p>
+                    <span
+                      style={{
+                        background: "#eef3ff",
+                        border: "1px solid #bfd0f5",
+                        borderRadius: "999px",
+                        padding: "0.35rem 0.75rem",
+                        fontSize: "0.9rem",
+                        fontWeight: 600,
+                        color: "#16325c",
+                      }}
+                    >
+                      {exercise.type}
+                    </span>
+                  </div>
 
-                <div style={{ display: "grid", gap: "0.6rem", maxWidth: "30rem" }}>
-                  {exercise.options.map((opt) => (
-                    <label key={opt} style={{ display: "flex", gap: "0.6rem" }}>
+                  <p style={{ fontSize: "1.1rem", marginBottom: "1rem" }}>
+                    {exercise.prompt}
+                  </p>
+
+                  {exercise.type === "multiple_choice" && (
+                    <div style={{ display: "grid", gap: "0.75rem", maxWidth: "34rem" }}>
+                      {exercise.options.map((opt) => (
+                        <label
+                          key={opt}
+                          style={{
+                            display: "flex",
+                            gap: "0.75rem",
+                            alignItems: "center",
+                            background: "#ffffff",
+                            border: "1px solid #d9e1f0",
+                            borderRadius: "12px",
+                            padding: "0.85rem 1rem",
+                          }}
+                        >
+                          <input
+                            type="radio"
+                            name={`mc_${currentIndex}`}
+                            checked={selected === opt}
+                            onChange={() => {
+                              setSelected(opt);
+                              setChecked(false);
+                              setIsCorrect(null);
+                            }}
+                          />
+                          {opt}
+                        </label>
+                      ))}
+                    </div>
+                  )}
+
+                  {exercise.type === "fill_blank" && (
+                    <div style={{ maxWidth: "34rem", marginTop: "0.75rem" }}>
+                      <label
+                        htmlFor={`fb_${currentIndex}`}
+                        style={{
+                          display: "block",
+                          marginBottom: "0.5rem",
+                          fontWeight: "600",
+                          color: "#16325c",
+                        }}
+                      >
+                        Escribe tu respuesta:
+                      </label>
                       <input
-                        type="radio"
-                        name={`mc_${currentIndex}`}
-                        checked={selected === opt}
-                        onChange={() => {
-                          setSelected(opt);
+                        id={`fb_${currentIndex}`}
+                        type="text"
+                        value={textAnswer}
+                        onChange={(e) => {
+                          setTextAnswer(e.target.value);
                           setChecked(false);
                           setIsCorrect(null);
                         }}
+                        placeholder="Escribe aquí"
+                        style={{
+                          width: "100%",
+                          padding: "0.85rem 1rem",
+                          border: "2px solid #bfd0f5",
+                          borderRadius: "12px",
+                          backgroundColor: "#fff",
+                          color: "#000",
+                          fontSize: "1rem",
+                          boxSizing: "border-box",
+                        }}
                       />
-                      {opt}
-                    </label>
-                  ))}
-                </div>
-
-                <div style={{ marginTop: "1rem" }}>
-                  {!checked ? (
-                    <>
-                      <button onClick={handleCheck} disabled={selected === null}>
-                        Comprobar
-                      </button>
-                      <button onClick={handleCancel} style={{ marginLeft: "1rem" }}>
-                        Cancelar sesión
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <p>
-                        {isCorrect
-                          ? " Correcto"
-                          : ` Incorrecto. Respuesta correcta: ${exercise.answer}`}
-                      </p>
-                      <button onClick={handleNext}>
-                        {currentIndex + 1 < exercises.length
-                          ? "Siguiente ejercicio"
-                          : "Finalizar sesión"}
-                      </button>
-                    </>
+                    </div>
                   )}
+
+                  {exercise.type === "order_words" && (
+                    <div style={{ maxWidth: "44rem", marginTop: "0.75rem" }}>
+                      <p
+                        style={{
+                          fontWeight: "600",
+                          marginBottom: "0.5rem",
+                          color: "#16325c",
+                        }}
+                      >
+                        Forma la frase pulsando las palabras:
+                      </p>
+
+                      <div
+                        style={{
+                          minHeight: "64px",
+                          padding: "0.9rem",
+                          border: "2px solid #bfd0f5",
+                          borderRadius: "12px",
+                          backgroundColor: "#fff",
+                          marginBottom: "1rem",
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: "0.5rem",
+                          alignItems: "center",
+                        }}
+                      >
+                        {orderedWords.length > 0 ? (
+                          orderedWords.map((word, i) => (
+                            <button
+                              key={`${word}_selected_${i}`}
+                              type="button"
+                              onClick={() => handleRemoveWord(i)}
+                            >
+                              {word}
+                            </button>
+                          ))
+                        ) : (
+                          <span style={{ color: "#5b6780" }}>Tu frase aparecerá aquí</span>
+                        )}
+                      </div>
+
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.6rem" }}>
+                        {availableWords.map((word, idx) => (
+                          <button
+                            key={`${word}_${idx}`}
+                            type="button"
+                            onClick={() => handleAddWord(word, idx)}
+                          >
+                            {word}
+                          </button>
+                        ))}
+                      </div>
+
+                      <div style={{ marginTop: "0.9rem" }}>
+                        <button type="button" onClick={handleResetWords}>
+                          Reiniciar frase
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {exercise.type !== "multiple_choice" &&
+                    exercise.type !== "fill_blank" &&
+                    exercise.type !== "order_words" && (
+                      <p style={{ color: "crimson", fontWeight: 600 }}>
+                        Tipo de ejercicio no soportado todavía: {exercise.type}
+                      </p>
+                    )}
+
+                  <div style={{ marginTop: "1.25rem" }}>
+                    {!checked ? (
+                      <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+                        <button onClick={handleCheck} disabled={isCheckDisabled}>
+                          Comprobar
+                        </button>
+                        <button onClick={handleCancel}>Cancelar sesión</button>
+                      </div>
+                    ) : (
+                      <>
+                        <p
+                          style={{
+                            marginBottom: "1rem",
+                            fontWeight: 600,
+                            color: isCorrect ? "#157347" : "#c0392b",
+                          }}
+                        >
+                          {isCorrect
+                            ? "✅ Correcto"
+                            : `❌ Incorrecto. Respuesta correcta: ${exercise.answer}`}
+                        </p>
+
+                        <button onClick={handleNext}>
+                          {currentIndex + 1 < exercises.length
+                            ? "Siguiente ejercicio"
+                            : "Finalizar sesión"}
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
-              </>
-            )}
-          </>
-        )}
+              )}
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

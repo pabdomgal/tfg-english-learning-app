@@ -26,10 +26,9 @@
           "tags": ["vocabulary"]
         },
         {
-          "id": "p_mc_3",
-          "type": "multiple_choice",
+          "id": "p_fb_1",
+          "type": "fill_blank",
           "prompt": "Completa la frase: I ___ in a house.",
-          "options": ["live", "lives", "living"],
           "answer": "live",
           "tags": ["grammar", "present_simple"]
         },
@@ -83,10 +82,9 @@
           "tags": ["vocabulary"]
         },
         {
-          "id": "i_mc_3",
-          "type": "multiple_choice",
+          "id": "i_fb_1",
+          "type": "fill_blank",
           "prompt": "Completa: My work ___ is very busy this week.",
-          "options": ["schedule", "dog", "house"],
           "answer": "schedule",
           "tags": ["vocabulary"]
         },
@@ -99,15 +97,11 @@
           "tags": ["grammar", "present_simple"]
         },
         {
-          "id": "i_mc_5",
-          "type": "multiple_choice",
-          "prompt": "Selecciona la frase más correcta:",
-          "options": [
-            "I have a deadline tomorrow.",
-            "I has a deadline tomorrow.",
-            "I having a deadline tomorrow."
-          ],
-          "answer": "I have a deadline tomorrow.",
+          "id": "i_ow_1",
+          "type": "order_words",
+          "prompt": "Ordena las palabras para formar una frase correcta:",
+          "options": ["I","deadline", "have", "a","tomorrow"],
+          "answer": "I have a deadline tomorrow",
           "tags": ["grammar", "present_simple"]
         }
       ]

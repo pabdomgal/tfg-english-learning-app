@@ -1,7 +1,12 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
-import { getActiveUser, getLastSession } from "../services/storage";
+import {
+  getActiveUser,
+  getLastSession,
+  loadState,
+  saveState,
+} from "../services/storage";
 import { formatTag } from "../services/tagFormat";
 
 function buildRecommendation(errorTagsCount) {
@@ -23,8 +28,27 @@ export default function SessionSummary() {
   const { user } = useMemo(() => getActiveUser(), []);
   const lastSession = getLastSession();
 
+  useEffect(() => {
+    if (user?.justCompletedLevel) {
+      const state = loadState();
+      if (state) {
+        const activeUser = state.users.find((u) => u.id === state.activeUserId);
+        if (activeUser && activeUser.justCompletedLevel) {
+          delete activeUser.justCompletedLevel;
+          saveState(state);
+        }
+      }
+
+      nav("/diploma", { replace: true });
+    }
+  }, [user, nav]);
+
   if (!user) {
     setTimeout(() => nav("/start", { replace: true }), 0);
+    return null;
+  }
+
+  if (user.justCompletedLevel) {
     return null;
   }
 
@@ -46,7 +70,7 @@ export default function SessionSummary() {
 
   const recommendation = buildRecommendation(lastSession.errorTagsCount);
 
-  //  Progreso del nivel actual
+  // Progreso del nivel actual
   const lp = user.levelProgress?.[user.level] || null;
   const levelPercent =
     lp && lp.totalExercises > 0 ? Math.round((lp.correct / lp.totalExercises) * 100) : 0;
