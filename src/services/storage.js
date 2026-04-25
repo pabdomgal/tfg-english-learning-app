@@ -5,11 +5,33 @@ const LEVELS = ["Principiante", "Intermedio", "Avanzado"];
 // criterio
 const LEVEL_CRITERIA = { minSessions: 3, minAccuracy: 60 };
 
+function createEmptyStats() {
+  return { sessions: 0, totalExercises: 0, correct: 0, wrong: 0 };
+}
+
 function createEmptyLevelProgress() {
   return {
-    Principiante: { sessions: 0, totalExercises: 0, correct: 0, wrong: 0, completed: false },
-    Intermedio:   { sessions: 0, totalExercises: 0, correct: 0, wrong: 0, completed: false },
-    Avanzado:     { sessions: 0, totalExercises: 0, correct: 0, wrong: 0, completed: false }
+    Principiante: {
+      sessions: 0,
+      totalExercises: 0,
+      correct: 0,
+      wrong: 0,
+      completed: false,
+    },
+    Intermedio: {
+      sessions: 0,
+      totalExercises: 0,
+      correct: 0,
+      wrong: 0,
+      completed: false,
+    },
+    Avanzado: {
+      sessions: 0,
+      totalExercises: 0,
+      correct: 0,
+      wrong: 0,
+      completed: false,
+    },
   };
 }
 
@@ -33,6 +55,17 @@ function isLevelCompleted(levelStats, criteria = LEVEL_CRITERIA) {
   const sessionsOk = (levelStats.sessions || 0) >= criteria.minSessions;
   const accOk = calcAccuracyPercent(levelStats) >= criteria.minAccuracy;
   return sessionsOk && accOk;
+}
+
+function ensureUserShape(user) {
+  if (!user) return user;
+
+  if (!user.stats) user.stats = createEmptyStats();
+  if (!user.history) user.history = [];
+  if (!user.levelProgress) user.levelProgress = createEmptyLevelProgress();
+  if (!user.lessonIndexByLevel) user.lessonIndexByLevel = createEmptyLessonIndexByLevel();
+
+  return user;
 }
 
 export function loadState() {
@@ -69,9 +102,9 @@ export function addUser(name) {
     id,
     name,
     level: null,
-    stats: { sessions: 0, totalExercises: 0, correct: 0, wrong: 0 },
+    stats: createEmptyStats(),
     levelProgress: createEmptyLevelProgress(),
-    lessonIndexByLevel: createEmptyLessonIndexByLevel(), 
+    lessonIndexByLevel: createEmptyLessonIndexByLevel(),
     history: [],
   };
 
@@ -87,11 +120,8 @@ export function setUserLevel(level) {
   const user = state.users.find((u) => u.id === state.activeUserId);
   if (!user) return { state, user: null };
 
+  ensureUserShape(user);
   user.level = level;
-
-  // si el usuario existía de antes
-  if (!user.levelProgress) user.levelProgress = createEmptyLevelProgress();
-  if (!user.lessonIndexByLevel) user.lessonIndexByLevel = createEmptyLessonIndexByLevel(); // ✅ NUEVO
 
   saveState(state);
   return { state, user };
@@ -101,28 +131,25 @@ export function getActiveUser() {
   const state = getOrCreateState();
   const user = state.users.find((u) => u.id === state.activeUserId) || null;
 
-  // si el usuario existía de antes
-  if (user && !user.levelProgress) {
-    user.levelProgress = createEmptyLevelProgress();
-    saveState(state);
-  }
-
-  if (user && !user.lessonIndexByLevel) {
-    user.lessonIndexByLevel = createEmptyLessonIndexByLevel();
+  if (user) {
+    ensureUserShape(user);
     saveState(state);
   }
 
   return { state, user };
 }
 
-export function saveSessionResult({ lessonId, results, levelName, lessonsCountByLevel }) {
+export function saveSessionResult({
+  lessonId,
+  results,
+  levelName,
+  lessonsCountByLevel,
+}) {
   const state = getOrCreateState();
   const user = state.users.find((u) => u.id === state.activeUserId);
   if (!user) return;
 
-  // si el usuario existía de antes
-  if (!user.levelProgress) user.levelProgress = createEmptyLevelProgress();
-  if (!user.lessonIndexByLevel) user.lessonIndexByLevel = createEmptyLessonIndexByLevel();
+  ensureUserShape(user);
 
   const total = results.length;
   const correct = results.filter((r) => r.isCorrect).length;
@@ -135,10 +162,15 @@ export function saveSessionResult({ lessonId, results, levelName, lessonsCountBy
     if (!r.isCorrect) {
       wrongItems.push({
         exerciseId: r.exerciseId,
+        type: r.type,
         prompt: r.prompt,
         answer: r.answer,
         selected: r.selected,
         tags: r.tags ?? [],
+        options: r.options ?? [],
+        sourceText: r.sourceText ?? null,
+        translation: r.translation ?? null,
+        audio: r.audio ?? null,
       });
 
       for (const t of r.tags ?? []) {
@@ -165,7 +197,8 @@ export function saveSessionResult({ lessonId, results, levelName, lessonsCountBy
   user.stats.correct += correct;
   user.stats.wrong += wrong;
 
-  const lvl = levelName || user.level; 
+  const lvl = levelName || user.level;
+
   if (lvl && user.levelProgress[lvl]) {
     const lp = user.levelProgress[lvl];
 
@@ -177,18 +210,22 @@ export function saveSessionResult({ lessonId, results, levelName, lessonsCountBy
     if (!lp.completed && isLevelCompleted(lp, LEVEL_CRITERIA)) {
       lp.completed = true;
 
+      // Guardamos el nivel recién completado para mostrar diploma
       user.justCompletedLevel = lvl;
 
       const next = getNextLevel(lvl);
       if (next) {
-        user.level = next; 
+        user.level = next;
       }
     }
   }
 
-  if (lvl && user.lessonIndexByLevel && typeof user.lessonIndexByLevel[lvl] === "number") {
+  if (
+    lvl &&
+    user.lessonIndexByLevel &&
+    typeof user.lessonIndexByLevel[lvl] === "number"
+  ) {
     const current = user.lessonIndexByLevel[lvl];
-
     const maxCount = lessonsCountByLevel?.[lvl];
 
     if (typeof maxCount === "number" && maxCount > 0) {
@@ -205,6 +242,8 @@ export function getLastSession() {
   const state = getOrCreateState();
   const user = state.users.find((u) => u.id === state.activeUserId) || null;
   if (!user) return null;
+
+  ensureUserShape(user);
   return user.history?.[0] ?? null;
 }
 
@@ -212,6 +251,8 @@ export function exportProgressJSON() {
   const state = getOrCreateState();
   const user = state.users.find((u) => u.id === state.activeUserId) || null;
   if (!user) return null;
+
+  ensureUserShape(user);
 
   return {
     exportedAt: new Date().toISOString(),
@@ -225,10 +266,13 @@ export function resetActiveUserProgress() {
   const user = state.users.find((u) => u.id === state.activeUserId) || null;
   if (!user) return false;
 
-  user.stats = { sessions: 0, totalExercises: 0, correct: 0, wrong: 0 };
+  ensureUserShape(user);
+
+  user.stats = createEmptyStats();
   user.history = [];
   user.levelProgress = createEmptyLevelProgress();
   user.lessonIndexByLevel = createEmptyLessonIndexByLevel();
+  delete user.justCompletedLevel;
 
   saveState(state);
   return true;

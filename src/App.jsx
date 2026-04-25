@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import WelcomeCreateUser from "./pages/WelcomeCreateUser";
 import SelectLevel from "./pages/SelectLevel";
 import MainMenu from "./pages/MainMenu";
@@ -8,14 +8,15 @@ import SessionSummary from "./pages/SessionSummary";
 import Stats from "./pages/Stats";
 import LevelDiploma from "./pages/LevelDiploma";
 import ProtectedRoute from "./components/ProtectedRoute";
+
 function App() {
   return (
     <Router>
       <Routes>
-
-        {/* Pantalla pública inicial */}
+        {/* Pantallas públicas */}
         <Route path="/" element={<WelcomeCreateUser />} />
         <Route path="/start" element={<WelcomeCreateUser />} />
+
         {/* Solo requiere usuario */}
         <Route
           path="/level"
@@ -81,6 +82,8 @@ function App() {
           }
         />
 
+        {/* Ruta fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

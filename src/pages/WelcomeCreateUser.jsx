@@ -10,17 +10,14 @@ export default function WelcomeCreateUser() {
   const { user } = useMemo(() => getActiveUser(), []);
   const [name, setName] = useState("");
 
-  // Si estás en /start, NO redirigimos automáticamente (pantalla forzada)
   const isForcedStart = location.pathname === "/start";
 
-  // Redirección segura solo para la ruta "/"
   useEffect(() => {
     if (!isForcedStart && user) {
       nav(user.level ? "/menu" : "/level", { replace: true });
     }
   }, [isForcedStart, user, nav]);
 
-  // Si estamos en "/" y hay usuario, mientras redirige no pintamos nada
   if (!isForcedStart && user) return null;
 
   function handleCreate() {
@@ -33,37 +30,91 @@ export default function WelcomeCreateUser() {
   return (
     <div>
       <Header userName={user?.name} levelName={user?.level ?? "-"} />
-      <div style={{ padding: 16 }}>
-        <h2>Bienvenido</h2>
 
-        {/* Si hay usuario y estamos en /start, mostramos aviso */}
-        {isForcedStart && user ? (
-          <p>
-            Ya existe un usuario activo. Puedes crear otro nuevo si quieres.
-          </p>
-        ) : (
-          <p>Crea un usuario para comenzar.</p>
-        )}
+      <div style={{ padding: "1rem" }}>
+        <div
+          style={{
+            maxWidth: "680px",
+            margin: "0 auto",
+            background: "#ffffff",
+            border: "1px solid #d9e1f0",
+            borderRadius: "16px",
+            boxShadow: "0 10px 30px rgba(31, 42, 68, 0.08)",
+            padding: "1.75rem",
+          }}
+        >
+          <div style={{ marginBottom: "1.5rem" }}>
+            <h2 style={{ marginBottom: "0.5rem" }}>Bienvenido</h2>
 
-        <label>
-          Nombre:
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            style={{ marginLeft: 8 }}
-          />
-        </label>
+            {isForcedStart && user ? (
+              <p style={{ color: "#5b6780", margin: 0 }}>
+                Ya existe un usuario activo. Puedes crear otro nuevo si quieres.
+              </p>
+            ) : (
+              <p style={{ color: "#5b6780", margin: 0 }}>
+                Crea un usuario para comenzar a utilizar la aplicación.
+              </p>
+            )}
+          </div>
 
-        <div style={{ marginTop: 12 }}>
-          <button onClick={handleCreate}>Crear usuario</button>
-          {user && (
-            <button
-              style={{ marginLeft: 12 }}
-              onClick={() => nav(user.level ? "/menu" : "/level")}
+          <div
+            style={{
+              background: "#f8fbff",
+              border: "1px solid #d9e1f0",
+              borderRadius: "16px",
+              padding: "1.25rem",
+            }}
+          >
+            <label
+              htmlFor="user-name"
+              style={{
+                display: "block",
+                fontWeight: 600,
+                color: "#16325c",
+                marginBottom: "0.6rem",
+              }}
             >
-              Volver
-            </button>
-          )}
+              Nombre del usuario
+            </label>
+
+            <input
+              id="user-name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Escribe tu nombre"
+              style={{
+                width: "100%",
+                maxWidth: "420px",
+                backgroundColor: "#fff",
+                marginBottom: "1rem",
+              }}
+            />
+
+            <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+              <button onClick={handleCreate}>Crear usuario</button>
+
+              {user && (
+                <button onClick={() => nav(user.level ? "/menu" : "/level")}>
+                  Volver
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div
+            style={{
+              marginTop: "1.25rem",
+              padding: "1rem",
+              background: "#f8fafc",
+              border: "1px solid #d9e1f0",
+              borderRadius: "14px",
+            }}
+          >
+            <p style={{ margin: 0, color: "#5b6780", fontSize: "0.95rem" }}>
+              El progreso del usuario se guardará localmente en el navegador para
+              poder continuar en futuras sesiones.
+            </p>
+          </div>
         </div>
       </div>
     </div>

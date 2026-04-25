@@ -18,6 +18,27 @@
           "tags": ["vocabulary"]
         },
         {
+          "id": "p_listen_1",
+          "type": "listening_build",
+          "prompt": "Escucha el audio y construye la frase en inglés:",
+          "audio": "/audio/beginner/p_listen_1.mp3",
+          "translation": "Voy al colegio todos los días.",
+          "options": ["I", "go", "to", "school", "every", "day", "blue", "yesterday"],
+          "answer": "I go to school every day",
+          "tags": ["listening", "sentence_build", "school", "present_simple"]
+        },
+        {
+          "id": "p_mp_1",
+          "type": "match_pairs",
+          "prompt": "Une cada palabra con su traducción correcta:",
+          "pairs": [
+            { "left": "dog", "right": "perro" },
+            { "left": "house", "right": "casa" },
+            { "left": "work", "right": "trabajar" }
+          ],
+          "tags": ["vocabulary"]
+        },
+        {
           "id": "p_mc_2",
           "type": "multiple_choice",
           "prompt": "Selecciona el significado correcto de 'house':",
@@ -37,11 +58,11 @@
           "type": "multiple_choice",
           "prompt": "Selecciona la frase correcta:",
           "options": [
-            "He work every day.",
-            "He works every day.",
-            "He working every day."
+            "He work every day",
+            "He works every day",
+            "He working every day"
           ],
-          "answer": "He works every day.",
+          "answer": "He works every day",
           "tags": ["grammar", "present_simple"]
         },
         {
@@ -51,6 +72,229 @@
           "options": ["trabajar", "comer", "dormir"],
           "answer": "trabajar",
           "tags": ["vocabulary"]
+        },
+        {
+          "id": "p_ow_1",
+          "type": "order_words",
+          "prompt": "Traduce la frase al inglés:",
+          "sourceText": "Trabajo todos los días",
+          "options": ["I", "work", "every", "day", "blue", "yesterday"],
+          "answer": "I work every day",
+          "tags": ["grammar", "present_simple", "translation"]
+        },
+        {
+          "id": "p_fb_2",
+          "type": "fill_blank",
+          "prompt": "She ___ in a house.",
+          "answer": "lives",
+          "tags": ["grammar", "present_simple"]
+        },
+        {
+          "id": "p_mc_6",
+          "type": "multiple_choice",
+          "prompt": "Selecciona la opción correcta: The dog ___ in the house.",
+          "options": ["is", "are", "be"],
+          "answer": "is",
+          "tags": ["grammar", "verb_to_be"]
+        }
+      ]
+    },
+    {
+      "id": "p_day_2",
+      "title": "Daily actions",
+      "vocab": [
+        { "word": "eat", "meaning": "comer" },
+        { "word": "drink", "meaning": "beber" },
+        { "word": "sleep", "meaning": "dormir" }
+      ],
+      "exercises": [
+        {
+          "id": "p2_mc_1",
+          "type": "multiple_choice",
+          "prompt": "¿Qué significa 'eat'?",
+          "options": ["comer", "beber", "leer"],
+          "answer": "comer",
+          "tags": ["vocabulary"]
+        },
+        {
+          "id": "p_listen_2",
+          "type": "listening_build",
+          "prompt": "Escucha el audio y construye la frase en inglés:",
+          "audio": "/audio/beginner/p_listen_2.mp3",
+          "translation": "Yo como pan por la mañana.",
+          "options": ["I", "eat", "bread", "in", "the", "morning", "night", "drink"],
+          "answer": "I eat bread in the morning",
+          "tags": ["listening", "sentence_build", "food", "daily_routines"]
+        },
+        {
+          "id": "p2_mp_1",
+          "type": "match_pairs",
+          "prompt": "Une cada palabra con su traducción correcta:",
+          "pairs": [
+            { "left": "eat", "right": "comer" },
+            { "left": "drink", "right": "beber" },
+            { "left": "sleep", "right": "dormir" }
+          ],
+          "tags": ["vocabulary"]
+        },
+        {
+          "id": "p2_mc_2",
+          "type": "multiple_choice",
+          "prompt": "¿Qué significa 'sleep'?",
+          "options": ["trabajar", "dormir", "correr"],
+          "answer": "dormir",
+          "tags": ["vocabulary"]
+        },
+        {
+          "id": "p2_fb_1",
+          "type": "fill_blank",
+          "prompt": "I ___ every night.",
+          "answer": "sleep",
+          "tags": ["grammar", "present_simple"]
+        },
+        {
+          "id": "p2_fb_2",
+          "type": "fill_blank",
+          "prompt": "I ___ water.",
+          "answer": "drink",
+          "tags": ["grammar", "present_simple"]
+        },
+        {
+          "id": "p2_ow_1",
+          "type": "order_words",
+          "prompt": "Traduce la frase al inglés:",
+          "sourceText": "Como todos los días",
+          "options": ["I", "eat", "every", "day", "green", "yesterday"],
+          "answer": "I eat every day",
+          "tags": ["grammar", "present_simple", "translation"]
+        },
+        {
+          "id": "p2_mc_3",
+          "type": "multiple_choice",
+          "prompt": "Selecciona la frase correcta:",
+          "options": [
+            "I eats every day",
+            "I eat every day",
+            "I eating every day"
+          ],
+          "answer": "I eat every day",
+          "tags": ["grammar", "present_simple"]
+        },
+        {
+          "id": "p2_fb_3",
+          "type": "fill_blank",
+          "prompt": "She ___ water.",
+          "answer": "drinks",
+          "tags": ["grammar", "present_simple"]
+        },
+        {
+          "id": "p2_ow_2",
+          "type": "order_words",
+          "prompt": "Traduce la frase al inglés:",
+          "sourceText": "Ella bebe agua",
+          "options": ["She", "drinks", "water", "tomorrow", "red"],
+          "answer": "She drinks water",
+          "tags": ["grammar", "present_simple", "translation"]
+        }
+      ]
+    },
+    {
+      "id": "p_day_3",
+      "title": "Family and school",
+      "vocab": [
+        { "word": "mother", "meaning": "madre" },
+        { "word": "book", "meaning": "libro" },
+        { "word": "school", "meaning": "colegio" }
+      ],
+      "exercises": [
+        {
+          "id": "p3_mc_1",
+          "type": "multiple_choice",
+          "prompt": "¿Qué significa 'mother'?",
+          "options": ["madre", "hermana", "abuela"],
+          "answer": "madre",
+          "tags": ["vocabulary", "family"]
+        },
+        {
+          "id": "p_listen_3",
+          "type": "listening_build",
+          "prompt": "Escucha el audio y construye la frase en inglés:",
+          "audio": "/audio/beginner/p_listen_3.mp3",
+          "translation": "Ella tiene un libro en el colegio.",
+          "options": ["She", "has", "a", "book", "at", "school", "home", "dog"],
+          "answer": "She has a book at school",
+          "tags": ["listening", "sentence_build", "school", "present_simple"]
+        },
+        {
+          "id": "p3_mp_1",
+          "type": "match_pairs",
+          "prompt": "Une cada palabra con su traducción correcta:",
+          "pairs": [
+            { "left": "mother", "right": "madre" },
+            { "left": "book", "right": "libro" },
+            { "left": "school", "right": "colegio" }
+          ],
+          "tags": ["vocabulary"]
+        },
+        {
+          "id": "p3_mc_2",
+          "type": "multiple_choice",
+          "prompt": "¿Qué significa 'book'?",
+          "options": ["mesa", "libro", "ventana"],
+          "answer": "libro",
+          "tags": ["vocabulary", "school"]
+        },
+        {
+          "id": "p3_fb_1",
+          "type": "fill_blank",
+          "prompt": "I go to ___ every day.",
+          "answer": "school",
+          "tags": ["vocabulary", "school"]
+        },
+        {
+          "id": "p3_mc_3",
+          "type": "multiple_choice",
+          "prompt": "Selecciona la frase correcta:",
+          "options": [
+            "My mother is at home",
+            "My mother are at home",
+            "My mother be at home"
+          ],
+          "answer": "My mother is at home",
+          "tags": ["grammar", "verb_to_be"]
+        },
+        {
+          "id": "p3_ow_1",
+          "type": "order_words",
+          "prompt": "Traduce la frase al inglés:",
+          "sourceText": "Leo un libro",
+          "options": ["I", "read", "a", "book", "yesterday", "yellow"],
+          "answer": "I read a book",
+          "tags": ["grammar", "present_simple", "translation"]
+        },
+        {
+          "id": "p3_fb_2",
+          "type": "fill_blank",
+          "prompt": "She has a ___ .",
+          "answer": "book",
+          "tags": ["vocabulary", "school"]
+        },
+        {
+          "id": "p3_mc_4",
+          "type": "multiple_choice",
+          "prompt": "¿Qué significa 'school'?",
+          "options": ["colegio", "trabajo", "mercado"],
+          "answer": "colegio",
+          "tags": ["vocabulary", "school"]
+        },
+        {
+          "id": "p3_ow_2",
+          "type": "order_words",
+          "prompt": "Traduce la frase al inglés:",
+          "sourceText": "Mi madre está feliz",
+          "options": ["My", "mother", "is", "happy", "table", "today"],
+          "answer": "My mother is happy",
+          "tags": ["grammar", "verb_to_be", "translation"]
         }
       ]
     }
@@ -74,19 +318,40 @@
           "tags": ["grammar", "present_simple"]
         },
         {
+          "id": "i_listen_3",
+          "type": "listening_build",
+          "prompt": "Escucha el audio y construye la frase en inglés:",
+          "audio": "/audio/intermediate/i_listen_3.mp3",
+          "translation": "Mi horario está muy ocupado esta tarde.",
+          "options": ["My", "schedule", "is", "very", "busy", "this", "afternoon", "tomorrow", "car"],
+          "answer": "My schedule is very busy this afternoon",
+          "tags": ["listening", "sentence_build", "work"]
+        },
+        {
+          "id": "i_mp_1",
+          "type": "match_pairs",
+          "prompt": "Une cada palabra con su traducción correcta:",
+          "pairs": [
+            { "left": "commute", "right": "desplazarse al trabajo" },
+            { "left": "schedule", "right": "horario" },
+            { "left": "deadline", "right": "fecha límite" }
+          ],
+          "tags": ["vocabulary", "work"]
+        },
+        {
           "id": "i_mc_2",
           "type": "multiple_choice",
           "prompt": "¿Cuál es la traducción correcta de 'deadline'?",
           "options": ["horario", "fecha límite", "reunión"],
           "answer": "fecha límite",
-          "tags": ["vocabulary"]
+          "tags": ["vocabulary", "work"]
         },
         {
           "id": "i_fb_1",
           "type": "fill_blank",
           "prompt": "Completa: My work ___ is very busy this week.",
           "answer": "schedule",
-          "tags": ["vocabulary"]
+          "tags": ["vocabulary", "work"]
         },
         {
           "id": "i_mc_4",
@@ -99,9 +364,238 @@
         {
           "id": "i_ow_1",
           "type": "order_words",
-          "prompt": "Ordena las palabras para formar una frase correcta:",
-          "options": ["I","deadline", "have", "a","tomorrow"],
+          "prompt": "Traduce la frase al inglés:",
+          "sourceText": "Tengo una fecha límite mañana",
+          "options": ["I", "have", "a", "deadline", "tomorrow", "green", "music"],
           "answer": "I have a deadline tomorrow",
+          "tags": ["grammar", "present_simple", "translation"]
+        },
+        {
+          "id": "i_fb_2",
+          "type": "fill_blank",
+          "prompt": "We have a meeting before the ___ .",
+          "answer": "deadline",
+          "tags": ["vocabulary", "work"]
+        },
+        {
+          "id": "i_mc_5",
+          "type": "multiple_choice",
+          "prompt": "Selecciona la frase más natural:",
+          "options": [
+            "My schedule is full today",
+            "My schedule are full today",
+            "My schedule full today"
+          ],
+          "answer": "My schedule is full today",
+          "tags": ["grammar", "verb_to_be"]
+        },
+        {
+          "id": "i_ow_2",
+          "type": "order_words",
+          "prompt": "Traduce la frase al inglés:",
+          "sourceText": "Ella se desplaza al trabajo cada mañana",
+          "options": ["She", "commutes", "every", "morning", "banana", "yesterday"],
+          "answer": "She commutes every morning",
+          "tags": ["grammar", "present_simple", "translation"]
+        }
+      ]
+    },
+    {
+      "id": "i_day_2",
+      "title": "Free time and habits",
+      "vocab": [
+        { "word": "hobby", "meaning": "afición" },
+        { "word": "usually", "meaning": "normalmente" },
+        { "word": "weekend", "meaning": "fin de semana" }
+      ],
+      "exercises": [
+        {
+          "id": "i2_mc_1",
+          "type": "multiple_choice",
+          "prompt": "¿Qué significa 'hobby'?",
+          "options": ["trabajo", "afición", "deporte"],
+          "answer": "afición",
+          "tags": ["vocabulary", "free_time"]
+        },
+        {
+          "id": "i_listen_1",
+          "type": "listening_build",
+          "prompt": "Escucha el audio y construye la frase en inglés:",
+          "audio": "/audio/intermediate/i_listen_1.mp3",
+          "translation": "Normalmente viajamos en tren los fines de semana.",
+          "options": ["We", "usually", "travel", "by", "train", "on", "weekends", "plane", "yesterday"],
+          "answer": "We usually travel by train on weekends",
+          "tags": ["listening", "sentence_build", "travel", "free_time"]
+        },
+        {
+          "id": "i2_mp_1",
+          "type": "match_pairs",
+          "prompt": "Une cada palabra con su traducción correcta:",
+          "pairs": [
+            { "left": "hobby", "right": "afición" },
+            { "left": "usually", "right": "normalmente" },
+            { "left": "weekend", "right": "fin de semana" }
+          ],
+          "tags": ["vocabulary", "free_time"]
+        },
+        {
+          "id": "i2_fb_1",
+          "type": "fill_blank",
+          "prompt": "I ___ read on weekends.",
+          "answer": "usually",
+          "tags": ["vocabulary", "adverbs"]
+        },
+        {
+          "id": "i2_mc_2",
+          "type": "multiple_choice",
+          "prompt": "Selecciona la frase correcta:",
+          "options": [
+            "She usually watches TV at night",
+            "She usually watch TV at night",
+            "She watching TV at night"
+          ],
+          "answer": "She usually watches TV at night",
+          "tags": ["grammar", "present_simple"]
+        },
+        {
+          "id": "i2_ow_1",
+          "type": "order_words",
+          "prompt": "Traduce la frase al inglés:",
+          "sourceText": "Juego al fútbol el fin de semana",
+          "options": ["I", "play", "football", "on", "the", "weekend", "purple", "yesterday"],
+          "answer": "I play football on the weekend",
+          "tags": ["grammar", "present_simple", "translation"]
+        },
+        {
+          "id": "i2_fb_2",
+          "type": "fill_blank",
+          "prompt": "My favourite ___ is reading.",
+          "answer": "hobby",
+          "tags": ["vocabulary", "free_time"]
+        },
+        {
+          "id": "i2_mc_3",
+          "type": "multiple_choice",
+          "prompt": "¿Qué significa 'weekend'?",
+          "options": ["lunes", "semana", "fin de semana"],
+          "answer": "fin de semana",
+          "tags": ["vocabulary", "time"]
+        },
+        {
+          "id": "i2_ow_2",
+          "type": "order_words",
+          "prompt": "Traduce la frase al inglés:",
+          "sourceText": "Ella suele leer por la noche",
+          "options": ["She", "usually", "reads", "at", "night", "table", "yesterday"],
+          "answer": "She usually reads at night",
+          "tags": ["grammar", "present_simple", "translation"]
+        },
+        {
+          "id": "i2_mc_4",
+          "type": "multiple_choice",
+          "prompt": "Selecciona la opción correcta: We ___ at home on Sundays.",
+          "options": ["stay", "stays", "staying"],
+          "answer": "stay",
+          "tags": ["grammar", "present_simple"]
+        }
+      ]
+    },
+    {
+      "id": "i_day_3",
+      "title": "Travel plans",
+      "vocab": [
+        { "word": "ticket", "meaning": "billete" },
+        { "word": "airport", "meaning": "aeropuerto" },
+        { "word": "journey", "meaning": "viaje" }
+      ],
+      "exercises": [
+        {
+          "id": "i3_mc_1",
+          "type": "multiple_choice",
+          "prompt": "¿Qué significa 'ticket'?",
+          "options": ["billete", "maleta", "asiento"],
+          "answer": "billete",
+          "tags": ["vocabulary", "travel"]
+        },
+        {
+          "id": "i_listen_2",
+          "type": "listening_build",
+          "prompt": "Escucha el audio y construye la frase en inglés:",
+          "audio": "/audio/intermediate/i_listen_2.mp3",
+          "translation": "Ella suele ir al aeropuerto en autobús.",
+          "options": ["She", "usually", "goes", "to", "the", "airport", "by", "bus", "car", "yesterday"],
+          "answer": "She usually goes to the airport by bus",
+          "tags": ["listening", "sentence_build", "travel"]
+        },
+        {
+          "id": "i3_mp_1",
+          "type": "match_pairs",
+          "prompt": "Une cada palabra con su traducción correcta:",
+          "pairs": [
+            { "left": "ticket", "right": "billete" },
+            { "left": "airport", "right": "aeropuerto" },
+            { "left": "journey", "right": "viaje" }
+          ],
+          "tags": ["vocabulary", "travel"]
+        },
+        {
+          "id": "i3_fb_1",
+          "type": "fill_blank",
+          "prompt": "We arrive at the ___ two hours early.",
+          "answer": "airport",
+          "tags": ["vocabulary", "travel"]
+        },
+        {
+          "id": "i3_mc_2",
+          "type": "multiple_choice",
+          "prompt": "Selecciona la frase correcta:",
+          "options": [
+            "The journey is very long",
+            "The journey are very long",
+            "The journey very long"
+          ],
+          "answer": "The journey is very long",
+          "tags": ["grammar", "verb_to_be"]
+        },
+        {
+          "id": "i3_ow_1",
+          "type": "order_words",
+          "prompt": "Traduce la frase al inglés:",
+          "sourceText": "Tengo mi billete",
+          "options": ["I", "have", "my", "ticket", "green", "tomorrow"],
+          "answer": "I have my ticket",
+          "tags": ["grammar", "present_simple", "translation"]
+        },
+        {
+          "id": "i3_fb_2",
+          "type": "fill_blank",
+          "prompt": "The ___ starts at 8 a.m.",
+          "answer": "journey",
+          "tags": ["vocabulary", "travel"]
+        },
+        {
+          "id": "i3_mc_3",
+          "type": "multiple_choice",
+          "prompt": "¿Qué significa 'airport'?",
+          "options": ["hotel", "aeropuerto", "estación"],
+          "answer": "aeropuerto",
+          "tags": ["vocabulary", "travel"]
+        },
+        {
+          "id": "i3_ow_2",
+          "type": "order_words",
+          "prompt": "Traduce la frase al inglés:",
+          "sourceText": "Vamos al aeropuerto",
+          "options": ["We", "go", "to", "the", "airport", "yesterday", "blue"],
+          "answer": "We go to the airport",
+          "tags": ["grammar", "present_simple", "translation"]
+        },
+        {
+          "id": "i3_mc_4",
+          "type": "multiple_choice",
+          "prompt": "Completa: She ___ her ticket in her bag.",
+          "options": ["has", "have", "having"],
+          "answer": "has",
           "tags": ["grammar", "present_simple"]
         }
       ]
@@ -113,7 +607,7 @@
       "title": "Work & communication",
       "vocab": [
         { "word": "stakeholder", "meaning": "parte interesada" },
-        { "word": "to negotiate", "meaning": "negociar" },
+        { "word": "negotiate", "meaning": "negociar" },
         { "word": "outcome", "meaning": "resultado" }
       ],
       "exercises": [
@@ -126,6 +620,27 @@
           "tags": ["vocabulary", "business"]
         },
         {
+          "id": "a_listen_3",
+          "type": "listening_build",
+          "prompt": "Escucha el audio y construye la frase en inglés:",
+          "audio": "/audio/advanced/a_listen_3.mp3",
+          "translation": "Necesitamos más evidencia para apoyar la decisión.",
+          "options": ["We", "need", "more", "evidence", "to", "support", "the", "decision", "yesterday", "airport"],
+          "answer": "We need more evidence to support the decision",
+          "tags": ["listening", "sentence_build", "analysis", "business"]
+        },
+        {
+          "id": "a_mp_1",
+          "type": "match_pairs",
+          "prompt": "Une cada palabra con su traducción correcta:",
+          "pairs": [
+            { "left": "stakeholder", "right": "parte interesada" },
+            { "left": "negotiate", "right": "negociar" },
+            { "left": "outcome", "right": "resultado" }
+          ],
+          "tags": ["vocabulary", "business"]
+        },
+        {
           "id": "a_mc_2",
           "type": "multiple_choice",
           "prompt": "¿Qué significa 'stakeholder' en un contexto de empresa?",
@@ -134,10 +649,9 @@
           "tags": ["vocabulary", "business"]
         },
         {
-          "id": "a_mc_3",
-          "type": "multiple_choice",
-          "prompt": "Completa: We need to ___ the terms before signing.",
-          "options": ["negotiate", "outcome", "schedule"],
+          "id": "a_fb_1",
+          "type": "fill_blank",
+          "prompt": "We need to ___ the terms before signing.",
           "answer": "negotiate",
           "tags": ["vocabulary", "business"]
         },
@@ -146,11 +660,11 @@
           "type": "multiple_choice",
           "prompt": "Selecciona la frase más formal:",
           "options": [
-            "Let's negotiate a better outcome.",
-            "Let's talk and see what happens.",
-            "We negotiate yesterday."
+            "Let's negotiate a better outcome",
+            "Let's talk and see what happens",
+            "We negotiate yesterday"
           ],
-          "answer": "Let's negotiate a better outcome.",
+          "answer": "Let's negotiate a better outcome",
           "tags": ["business", "communication"]
         },
         {
@@ -159,6 +673,34 @@
           "prompt": "Selecciona la opción correcta: The outcome ___ positive.",
           "options": ["was", "were", "be"],
           "answer": "was",
+          "tags": ["grammar", "past_simple"]
+        },
+        {
+          "id": "a_ow_1",
+          "type": "order_words",
+          "prompt": "Traduce la frase al inglés:",
+          "sourceText": "El resultado fue positivo",
+          "options": ["The", "outcome", "was", "positive", "yesterday", "chair"],
+          "answer": "The outcome was positive",
+          "tags": ["grammar", "past_simple", "translation"]
+        },
+        {
+          "id": "a_fb_2",
+          "type": "fill_blank",
+          "prompt": "Every ___ must approve the proposal.",
+          "answer": "stakeholder",
+          "tags": ["vocabulary", "business"]
+        },
+        {
+          "id": "a_mc_6",
+          "type": "multiple_choice",
+          "prompt": "Selecciona la frase correcta:",
+          "options": [
+            "We negotiated the contract yesterday",
+            "We negotiate the contract yesterday",
+            "We negotiating the contract yesterday"
+          ],
+          "answer": "We negotiated the contract yesterday",
           "tags": ["grammar", "past_simple"]
         }
       ]
@@ -169,7 +711,7 @@
       "vocab": [
         { "word": "agenda", "meaning": "orden del día" },
         { "word": "decision", "meaning": "decisión" },
-        { "word": "to propose", "meaning": "proponer" }
+        { "word": "propose", "meaning": "proponer" }
       ],
       "exercises": [
         {
@@ -181,40 +723,185 @@
           "tags": ["vocabulary", "business"]
         },
         {
-          "id": "a2_mc_2",
-          "type": "multiple_choice",
-          "prompt": "Completa: I want to ___ a new plan.",
-          "options": ["propose", "agenda", "deadline"],
+          "id": "a_listen_2",
+          "type": "listening_build",
+          "prompt": "Escucha el audio y construye la frase en inglés:",
+          "audio": "/audio/advanced/a_listen_2.mp3",
+          "translation": "El gerente revisó el informe antes de la reunión.",
+          "options": ["The", "manager", "reviewed", "the", "report", "before", "the", "meeting", "tomorrow", "coffee"],
+          "answer": "The manager reviewed the report before the meeting",
+          "tags": ["listening", "sentence_build", "business", "past_simple"]
+        },
+        {
+          "id": "a2_mp_1",
+          "type": "match_pairs",
+          "prompt": "Une cada palabra con su traducción correcta:",
+          "pairs": [
+            { "left": "agenda", "right": "orden del día" },
+            { "left": "decision", "right": "decisión" },
+            { "left": "propose", "right": "proponer" }
+          ],
+          "tags": ["vocabulary", "business"]
+        },
+        {
+          "id": "a2_fb_1",
+          "type": "fill_blank",
+          "prompt": "I want to ___ a new plan.",
           "answer": "propose",
           "tags": ["vocabulary", "business"]
         },
         {
-          "id": "a2_mc_3",
+          "id": "a2_mc_2",
           "type": "multiple_choice",
           "prompt": "Selecciona la frase correcta:",
           "options": [
-            "We makes a decision today.",
-            "We make a decision today.",
-            "We making a decision today."
+            "We make a decision today",
+            "We makes a decision today",
+            "We making a decision today"
           ],
-          "answer": "We make a decision today.",
+          "answer": "We make a decision today",
           "tags": ["grammar", "present_simple"]
         },
         {
-          "id": "a2_mc_4",
+          "id": "a2_mc_3",
           "type": "multiple_choice",
           "prompt": "¿Qué significa 'decision'?",
           "options": ["decisión", "reunión", "parte interesada"],
           "answer": "decisión",
-          "tags": ["vocabulary"]
+          "tags": ["vocabulary", "business"]
         },
         {
-          "id": "a2_mc_5",
+          "id": "a2_mc_4",
           "type": "multiple_choice",
           "prompt": "Selecciona la opción correcta: The decision ___ final.",
           "options": ["is", "are", "be"],
           "answer": "is",
-          "tags": ["grammar"]
+          "tags": ["grammar", "verb_to_be"]
+        },
+        {
+          "id": "a2_ow_1",
+          "type": "order_words",
+          "prompt": "Traduce la frase al inglés:",
+          "sourceText": "Tenemos una agenda hoy",
+          "options": ["We", "have", "an", "agenda", "today", "purple", "yesterday"],
+          "answer": "We have an agenda today",
+          "tags": ["grammar", "present_simple", "translation"]
+        },
+        {
+          "id": "a2_fb_2",
+          "type": "fill_blank",
+          "prompt": "They need a final ___.",
+          "answer": "decision",
+          "tags": ["vocabulary", "business"]
+        },
+        {
+          "id": "a2_ow_2",
+          "type": "order_words",
+          "prompt": "Traduce la frase al inglés:",
+          "sourceText": "Propongo una solución diferente",
+          "options": ["I", "propose", "a", "different", "solution", "green", "table"],
+          "answer": "I propose a different solution",
+          "tags": ["grammar", "present_simple", "translation"]
+        }
+      ]
+    },
+    {
+      "id": "a_day_3",
+      "title": "Reports and analysis",
+      "vocab": [
+        { "word": "report", "meaning": "informe" },
+        { "word": "evidence", "meaning": "evidencia" },
+        { "word": "improvement", "meaning": "mejora" }
+      ],
+      "exercises": [
+        {
+          "id": "a3_mc_1",
+          "type": "multiple_choice",
+          "prompt": "¿Qué significa 'report'?",
+          "options": ["informe", "resumen", "gráfico"],
+          "answer": "informe",
+          "tags": ["vocabulary", "analysis"]
+        },
+        {
+          "id": "a_listen_1",
+          "type": "listening_build",
+          "prompt": "Escucha el audio y construye la frase en inglés:",
+          "audio": "/audio/advanced/a_listen_1.mp3",
+          "translation": "El informe muestra una evidencia clara de mejora.",
+          "options": ["The", "report", "shows", "clear", "evidence", "of", "improvement", "yesterday", "chair"],
+          "answer": "The report shows clear evidence of improvement",
+          "tags": ["listening", "sentence_build", "analysis", "business"]
+        },
+        {
+          "id": "a3_mp_1",
+          "type": "match_pairs",
+          "prompt": "Une cada palabra con su traducción correcta:",
+          "pairs": [
+            { "left": "report", "right": "informe" },
+            { "left": "evidence", "right": "evidencia" },
+            { "left": "improvement", "right": "mejora" }
+          ],
+          "tags": ["vocabulary", "analysis"]
+        },
+        {
+          "id": "a3_fb_1",
+          "type": "fill_blank",
+          "prompt": "The team showed clear ___ of progress.",
+          "answer": "evidence",
+          "tags": ["vocabulary", "analysis"]
+        },
+        {
+          "id": "a3_mc_2",
+          "type": "multiple_choice",
+          "prompt": "Selecciona la frase correcta:",
+          "options": [
+            "The report was very detailed",
+            "The report were very detailed",
+            "The report very detailed"
+          ],
+          "answer": "The report was very detailed",
+          "tags": ["grammar", "past_simple"]
+        },
+        {
+          "id": "a3_ow_1",
+          "type": "order_words",
+          "prompt": "Traduce la frase al inglés:",
+          "sourceText": "Necesitamos más evidencia",
+          "options": ["We", "need", "more", "evidence", "tomorrow", "blue"],
+          "answer": "We need more evidence",
+          "tags": ["grammar", "present_simple", "translation"]
+        },
+        {
+          "id": "a3_fb_2",
+          "type": "fill_blank",
+          "prompt": "There was a clear ___ in performance.",
+          "answer": "improvement",
+          "tags": ["vocabulary", "analysis"]
+        },
+        {
+          "id": "a3_mc_3",
+          "type": "multiple_choice",
+          "prompt": "¿Qué significa 'improvement'?",
+          "options": ["mejora", "problema", "decisión"],
+          "answer": "mejora",
+          "tags": ["vocabulary", "analysis"]
+        },
+        {
+          "id": "a3_mc_4",
+          "type": "multiple_choice",
+          "prompt": "Selecciona la mejor opción: The manager ___ the report yesterday.",
+          "options": ["reviewed", "reviews", "reviewing"],
+          "answer": "reviewed",
+          "tags": ["grammar", "past_simple"]
+        },
+        {
+          "id": "a3_ow_2",
+          "type": "order_words",
+          "prompt": "Traduce la frase al inglés:",
+          "sourceText": "El informe muestra mejora",
+          "options": ["The", "report", "shows", "improvement", "green", "yesterday"],
+          "answer": "The report shows improvement",
+          "tags": ["grammar", "present_simple", "translation"]
         }
       ]
     }

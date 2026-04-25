@@ -4,25 +4,37 @@ import Header from "../components/Header";
 import { getActiveUser, saveSessionResult } from "../services/storage";
 import { getCurrentLesson, buildDailySession } from "../services/lessonEngine";
 
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 export default function DailySession() {
   const nav = useNavigate();
   const { user } = useMemo(() => getActiveUser(), []);
 
   const [phase, setPhase] = useState("vocab");
 
-  // Multi-ejercicio
   const [currentIndex, setCurrentIndex] = useState(0);
   const [sessionResults, setSessionResults] = useState([]);
 
-  // Estado del ejercicio actual
   const [selected, setSelected] = useState(null);
   const [textAnswer, setTextAnswer] = useState("");
   const [orderedWords, setOrderedWords] = useState([]);
   const [availableWords, setAvailableWords] = useState([]);
+
+  const [selectedLeft, setSelectedLeft] = useState(null);
+  const [selectedRight, setSelectedRight] = useState(null);
+  const [matchedPairs, setMatchedPairs] = useState([]);
+  const [rightOptions, setRightOptions] = useState([]);
+
   const [checked, setChecked] = useState(false);
   const [isCorrect, setIsCorrect] = useState(null);
 
-  // Guardado seguro del último resultado
   const [lastResult, setLastResult] = useState(null);
 
   if (!user) {
@@ -37,14 +49,39 @@ export default function DailySession() {
   const exercises = buildDailySession(user.level, lessonIndex, 5, levelSessions);
   const exercise = exercises[currentIndex] ?? null;
 
+  const progressPercent =
+    exercises.length > 0 ? Math.round(((currentIndex + 1) / exercises.length) * 100) : 0;
+
+  function resetCommonState() {
+    setSelected(null);
+    setTextAnswer("");
+    setChecked(false);
+    setIsCorrect(null);
+
+    setOrderedWords([]);
+    setAvailableWords([]);
+
+    setSelectedLeft(null);
+    setSelectedRight(null);
+    setMatchedPairs([]);
+    setRightOptions([]);
+  }
+
   useEffect(() => {
-    if (exercise?.type === "order_words") {
-      setAvailableWords(exercise.options ?? []);
-      setOrderedWords([]);
-      setChecked(false);
-      setIsCorrect(null);
+    if (phase !== "exercise" || !exercise) return;
+
+    resetCommonState();
+
+    if (exercise.type === "order_words" || exercise.type === "listening_build") {
+      setAvailableWords(shuffleArray(exercise.options ?? []));
+      return;
     }
-  }, [exercise]);
+
+    if (exercise.type === "match_pairs") {
+      const rights = (exercise.pairs ?? []).map((p) => p.right);
+      setRightOptions(shuffleArray(rights));
+    }
+  }, [exercise, phase]);
 
   function handleCancel() {
     nav("/menu");
@@ -55,20 +92,20 @@ export default function DailySession() {
     setCurrentIndex(0);
     setSessionResults([]);
     setLastResult(null);
-    resetExerciseState();
-  }
-
-  function resetExerciseState() {
-    setSelected(null);
-    setTextAnswer("");
-    setOrderedWords([]);
-    setAvailableWords(exercise?.type === "order_words" ? exercise.options ?? [] : []);
-    setChecked(false);
-    setIsCorrect(null);
+    resetCommonState();
   }
 
   function normalizeText(value) {
     return String(value ?? "").trim().toLowerCase();
+  }
+
+  function formatExerciseType(type) {
+    if (type === "multiple_choice") return "Test";
+    if (type === "fill_blank") return "Completar hueco";
+    if (type === "order_words") return "Traducir y ordenar";
+    if (type === "match_pairs") return "Unir palabras";
+    if (type === "listening_build") return "Listening";
+    return type;
   }
 
   function handleAddWord(word, index) {
@@ -92,10 +129,47 @@ export default function DailySession() {
   }
 
   function handleResetWords() {
-    if (!exercise || exercise.type !== "order_words") return;
+    if (
+      !exercise ||
+      (exercise.type !== "order_words" && exercise.type !== "listening_build")
+    ) {
+      return;
+    }
 
     setOrderedWords([]);
-    setAvailableWords(exercise.options ?? []);
+    setAvailableWords(shuffleArray(exercise.options ?? []));
+    setChecked(false);
+    setIsCorrect(null);
+  }
+
+  function handleMatchLeft(leftWord) {
+    if (checked) return;
+    setSelectedLeft(leftWord);
+  }
+
+  function handleMatchRight(rightWord) {
+    if (checked) return;
+    setSelectedRight(rightWord);
+  }
+
+  function handleConfirmPair() {
+    if (checked || !selectedLeft || !selectedRight) return;
+
+    const pairExists = matchedPairs.some(
+      (p) => p.left === selectedLeft || p.right === selectedRight
+    );
+    if (pairExists) return;
+
+    setMatchedPairs((prev) => [...prev, { left: selectedLeft, right: selectedRight }]);
+    setSelectedLeft(null);
+    setSelectedRight(null);
+    setChecked(false);
+    setIsCorrect(null);
+  }
+
+  function handleRemovePair(index) {
+    if (checked) return;
+    setMatchedPairs((prev) => prev.filter((_, i) => i !== index));
     setChecked(false);
     setIsCorrect(null);
   }
@@ -118,10 +192,25 @@ export default function DailySession() {
       ok = normalizeText(userAnswer) === normalizeText(exercise.answer);
     }
 
-    if (exercise.type === "order_words") {
+    if (exercise.type === "order_words" || exercise.type === "listening_build") {
       if (!orderedWords.length) return;
       userAnswer = orderedWords.join(" ");
       ok = normalizeText(userAnswer) === normalizeText(exercise.answer);
+    }
+
+    if (exercise.type === "match_pairs") {
+      const expected = exercise.pairs ?? [];
+      if (matchedPairs.length !== expected.length) return;
+
+      userAnswer = matchedPairs;
+
+      ok = expected.every((pair) =>
+        matchedPairs.some(
+          (m) =>
+            normalizeText(m.left) === normalizeText(pair.left) &&
+            normalizeText(m.right) === normalizeText(pair.right)
+        )
+      );
     }
 
     setChecked(true);
@@ -129,11 +218,16 @@ export default function DailySession() {
 
     const result = {
       exerciseId: exercise.id,
+      type: exercise.type,
       prompt: exercise.prompt,
-      answer: exercise.answer,
+      answer: exercise.type === "match_pairs" ? exercise.pairs : exercise.answer,
       selected: userAnswer,
       isCorrect: ok,
       tags: exercise.tags ?? [],
+      options: exercise.options ?? [],
+      sourceText: exercise.sourceText ?? null,
+      translation: exercise.translation ?? null,
+      audio: exercise.audio ?? null,
     };
 
     setLastResult(result);
@@ -149,7 +243,6 @@ export default function DailySession() {
 
     if (nextIndex < exercises.length) {
       setCurrentIndex(nextIndex);
-      resetExerciseState();
     } else {
       const safeResults = lastResult
         ? [
@@ -163,9 +256,9 @@ export default function DailySession() {
         results: safeResults,
         levelName: user.level,
         lessonsCountByLevel: {
-          Principiante: 1,
-          Intermedio: 1,
-          Avanzado: 2,
+          Principiante: 3,
+          Intermedio: 3,
+          Avanzado: 3,
         },
       });
 
@@ -177,7 +270,10 @@ export default function DailySession() {
     !exercise ||
     (exercise.type === "multiple_choice" && selected === null) ||
     (exercise.type === "fill_blank" && !textAnswer.trim()) ||
-    (exercise.type === "order_words" && orderedWords.length === 0);
+    ((exercise.type === "order_words" || exercise.type === "listening_build") &&
+      orderedWords.length === 0) ||
+    (exercise.type === "match_pairs" &&
+      matchedPairs.length !== (exercise.pairs ?? []).length);
 
   return (
     <div>
@@ -197,7 +293,8 @@ export default function DailySession() {
 
           {lesson && (
             <p style={{ color: "#5b6780", marginBottom: "1.5rem" }}>
-              <strong style={{ color: "#16325c" }}>Lección actual:</strong> {lesson.title} ({lesson.id})
+              <strong style={{ color: "#16325c" }}>Lección actual:</strong> {lesson.title} (
+              {lesson.id})
             </p>
           )}
 
@@ -249,6 +346,57 @@ export default function DailySession() {
                     padding: "1.25rem",
                   }}
                 >
+                  <div style={{ marginBottom: "1rem" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        flexWrap: "wrap",
+                        gap: "0.75rem",
+                        marginBottom: "0.6rem",
+                      }}
+                    >
+                      <p style={{ margin: 0, fontWeight: 700, color: "#16325c" }}>
+                        Ejercicio {currentIndex + 1} de {exercises.length}
+                      </p>
+
+                      <span
+                        style={{
+                          background: "#eef3ff",
+                          border: "1px solid #bfd0f5",
+                          borderRadius: "999px",
+                          padding: "0.35rem 0.75rem",
+                          fontSize: "0.9rem",
+                          fontWeight: 600,
+                          color: "#16325c",
+                        }}
+                      >
+                        {progressPercent}% completado
+                      </span>
+                    </div>
+
+                    <div
+                      style={{
+                        width: "100%",
+                        height: "10px",
+                        background: "#dfe7f5",
+                        borderRadius: "999px",
+                        overflow: "hidden",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: `${progressPercent}%`,
+                          height: "100%",
+                          background: "linear-gradient(90deg, #4f86ff 0%, #1f4ea3 100%)",
+                          borderRadius: "999px",
+                          transition: "width 0.3s ease",
+                        }}
+                      />
+                    </div>
+                  </div>
+
                   <div
                     style={{
                       display: "flex",
@@ -260,7 +408,7 @@ export default function DailySession() {
                     }}
                   >
                     <p style={{ margin: 0, fontWeight: 700, color: "#16325c" }}>
-                      Ejercicio {currentIndex + 1} de {exercises.length}
+                      Actividad actual
                     </p>
 
                     <span
@@ -274,7 +422,7 @@ export default function DailySession() {
                         color: "#16325c",
                       }}
                     >
-                      {exercise.type}
+                      {formatExerciseType(exercise.type)}
                     </span>
                   </div>
 
@@ -352,6 +500,32 @@ export default function DailySession() {
 
                   {exercise.type === "order_words" && (
                     <div style={{ maxWidth: "44rem", marginTop: "0.75rem" }}>
+                      {exercise.sourceText && (
+                        <div
+                          style={{
+                            background: "#ffffff",
+                            border: "1px solid #d9e1f0",
+                            borderRadius: "12px",
+                            padding: "0.9rem 1rem",
+                            marginBottom: "1rem",
+                          }}
+                        >
+                          <p style={{ margin: 0, color: "#5b6780", fontSize: "0.95rem" }}>
+                            Frase en español
+                          </p>
+                          <p
+                            style={{
+                              margin: "0.35rem 0 0 0",
+                              fontWeight: 700,
+                              color: "#16325c",
+                              fontSize: "1.05rem",
+                            }}
+                          >
+                            {exercise.sourceText}
+                          </p>
+                        </div>
+                      )}
+
                       <p
                         style={{
                           fontWeight: "600",
@@ -359,7 +533,7 @@ export default function DailySession() {
                           color: "#16325c",
                         }}
                       >
-                        Forma la frase pulsando las palabras:
+                        Forma la frase en inglés pulsando las palabras:
                       </p>
 
                       <div
@@ -387,7 +561,7 @@ export default function DailySession() {
                             </button>
                           ))
                         ) : (
-                          <span style={{ color: "#5b6780" }}>Tu frase aparecerá aquí</span>
+                          <span style={{ color: "#5b6780" }}>Tu frase en inglés aparecerá aquí</span>
                         )}
                       </div>
 
@@ -411,9 +585,268 @@ export default function DailySession() {
                     </div>
                   )}
 
+                  {exercise.type === "listening_build" && (
+                    <div style={{ maxWidth: "44rem", marginTop: "0.75rem" }}>
+                      <div
+                        style={{
+                          background: "#ffffff",
+                          border: "1px solid #d9e1f0",
+                          borderRadius: "12px",
+                          padding: "1rem",
+                          marginBottom: "1rem",
+                        }}
+                      >
+                        <p
+                          style={{
+                            margin: "0 0 0.5rem 0",
+                            fontWeight: "600",
+                            color: "#16325c",
+                          }}
+                        >
+                          Escucha el audio:
+                        </p>
+
+                        <audio controls preload="none" style={{ width: "100%" }}>
+                          <source src={exercise.audio} type="audio/mpeg" />
+                          Tu navegador no soporta el audio.
+                        </audio>
+                      </div>
+
+                      {exercise.translation && (
+                        <div
+                          style={{
+                            background: "#ffffff",
+                            border: "1px solid #d9e1f0",
+                            borderRadius: "12px",
+                            padding: "0.9rem 1rem",
+                            marginBottom: "1rem",
+                          }}
+                        >
+                          <p style={{ margin: 0, color: "#5b6780", fontSize: "0.95rem" }}>
+                            Traducción de apoyo
+                          </p>
+                          <p
+                            style={{
+                              margin: "0.35rem 0 0 0",
+                              fontWeight: 700,
+                              color: "#16325c",
+                              fontSize: "1.05rem",
+                            }}
+                          >
+                            {exercise.translation}
+                          </p>
+                        </div>
+                      )}
+
+                      <p
+                        style={{
+                          fontWeight: "600",
+                          marginBottom: "0.5rem",
+                          color: "#16325c",
+                        }}
+                      >
+                        Construye la frase en inglés pulsando las palabras:
+                      </p>
+
+                      <div
+                        style={{
+                          minHeight: "64px",
+                          padding: "0.9rem",
+                          border: "2px solid #bfd0f5",
+                          borderRadius: "12px",
+                          backgroundColor: "#fff",
+                          marginBottom: "1rem",
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: "0.5rem",
+                          alignItems: "center",
+                        }}
+                      >
+                        {orderedWords.length > 0 ? (
+                          orderedWords.map((word, i) => (
+                            <button
+                              key={`${word}_listening_selected_${i}`}
+                              type="button"
+                              onClick={() => handleRemoveWord(i)}
+                            >
+                              {word}
+                            </button>
+                          ))
+                        ) : (
+                          <span style={{ color: "#5b6780" }}>
+                            Tu frase en inglés aparecerá aquí
+                          </span>
+                        )}
+                      </div>
+
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.6rem" }}>
+                        {availableWords.map((word, idx) => (
+                          <button
+                            key={`${word}_listening_${idx}`}
+                            type="button"
+                            onClick={() => handleAddWord(word, idx)}
+                          >
+                            {word}
+                          </button>
+                        ))}
+                      </div>
+
+                      <div style={{ marginTop: "0.9rem" }}>
+                        <button type="button" onClick={handleResetWords}>
+                          Reiniciar frase
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {exercise.type === "match_pairs" && (
+                    <div style={{ marginTop: "0.75rem" }}>
+                      <p
+                        style={{
+                          fontWeight: "600",
+                          marginBottom: "0.75rem",
+                          color: "#16325c",
+                        }}
+                      >
+                        Selecciona una palabra en inglés y su traducción correcta:
+                      </p>
+
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "1fr 1fr",
+                          gap: "1rem",
+                          maxWidth: "700px",
+                        }}
+                      >
+                        <div>
+                          <p style={{ fontWeight: 600, marginBottom: "0.5rem" }}>Inglés</p>
+                          <div style={{ display: "grid", gap: "0.5rem" }}>
+                            {(exercise.pairs ?? []).map((pair) => {
+                              const alreadyMatched = matchedPairs.some((m) => m.left === pair.left);
+                              return (
+                                <button
+                                  key={pair.left}
+                                  type="button"
+                                  disabled={alreadyMatched}
+                                  onClick={() => handleMatchLeft(pair.left)}
+                                  style={{
+                                    opacity: alreadyMatched ? 0.4 : 1,
+                                    cursor: alreadyMatched ? "not-allowed" : "pointer",
+                                    border:
+                                      selectedLeft === pair.left
+                                        ? "2px solid #1f4ea3"
+                                        : undefined,
+                                  }}
+                                >
+                                  {pair.left}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        <div>
+                          <p style={{ fontWeight: 600, marginBottom: "0.5rem" }}>Español</p>
+                          <div style={{ display: "grid", gap: "0.5rem" }}>
+                            {rightOptions.map((right) => {
+                              const alreadyMatched = matchedPairs.some((m) => m.right === right);
+                              return (
+                                <button
+                                  key={right}
+                                  type="button"
+                                  disabled={alreadyMatched}
+                                  onClick={() => handleMatchRight(right)}
+                                  style={{
+                                    opacity: alreadyMatched ? 0.4 : 1,
+                                    cursor: alreadyMatched ? "not-allowed" : "pointer",
+                                    border:
+                                      selectedRight === right
+                                        ? "2px solid #1f4ea3"
+                                        : undefined,
+                                  }}
+                                >
+                                  {right}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div
+                        style={{
+                          marginTop: "1rem",
+                          display: "flex",
+                          gap: "0.75rem",
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        <button
+                          type="button"
+                          onClick={handleConfirmPair}
+                          disabled={!selectedLeft || !selectedRight}
+                        >
+                          Confirmar pareja
+                        </button>
+                      </div>
+
+                      <div
+                        style={{
+                          marginTop: "1rem",
+                          background: "#fff",
+                          border: "1px solid #d9e1f0",
+                          borderRadius: "12px",
+                          padding: "1rem",
+                          maxWidth: "700px",
+                        }}
+                      >
+                        <p style={{ fontWeight: 600, marginBottom: "0.5rem" }}>
+                          Parejas formadas
+                        </p>
+
+                        {matchedPairs.length === 0 ? (
+                          <p style={{ color: "#5b6780", margin: 0 }}>
+                            Aún no has formado ninguna pareja.
+                          </p>
+                        ) : (
+                          <div style={{ display: "grid", gap: "0.5rem" }}>
+                            {matchedPairs.map((pair, idx) => (
+                              <div
+                                key={`${pair.left}_${pair.right}_${idx}`}
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                  gap: "1rem",
+                                  background: "#f8fbff",
+                                  border: "1px solid #d9e1f0",
+                                  borderRadius: "10px",
+                                  padding: "0.75rem",
+                                }}
+                              >
+                                <span>
+                                  <strong>{pair.left}</strong> — {pair.right}
+                                </span>
+
+                                {!checked && (
+                                  <button type="button" onClick={() => handleRemovePair(idx)}>
+                                    Quitar
+                                  </button>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                   {exercise.type !== "multiple_choice" &&
                     exercise.type !== "fill_blank" &&
-                    exercise.type !== "order_words" && (
+                    exercise.type !== "order_words" &&
+                    exercise.type !== "match_pairs" &&
+                    exercise.type !== "listening_build" && (
                       <p style={{ color: "crimson", fontWeight: 600 }}>
                         Tipo de ejercicio no soportado todavía: {exercise.type}
                       </p>
@@ -437,8 +870,16 @@ export default function DailySession() {
                           }}
                         >
                           {isCorrect
-                            ? "✅ Correcto"
-                            : `❌ Incorrecto. Respuesta correcta: ${exercise.answer}`}
+                            ? exercise.type === "match_pairs"
+                              ? "✅ Correcto. Has unido todas las parejas correctamente."
+                              : "✅ Correcto"
+                            : exercise.type === "match_pairs"
+                              ? "❌ Incorrecto. Revisa las parejas y vuelve a intentarlo."
+                              : `❌ Incorrecto. Respuesta correcta: ${
+                                  Array.isArray(exercise.answer)
+                                    ? JSON.stringify(exercise.answer)
+                                    : exercise.answer
+                                }`}
                         </p>
 
                         <button onClick={handleNext}>
