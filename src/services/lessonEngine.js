@@ -20,14 +20,25 @@ export function buildDailySession(levelName, lessonIndex = 0, limit = null) {
   const lesson = getCurrentLesson(levelName, lessonIndex);
   if (!lesson) return [];
 
-  const allExercises = Array.isArray(lesson.exercises) ? lesson.exercises : [];
+  const BASE = import.meta.env.BASE_URL;
+
+  const allExercises = Array.isArray(lesson.exercises)
+    ? lesson.exercises.map((ex) => ({
+        ...ex,
+        audio: ex.audio ? `${BASE}${ex.audio.replace(/^\//, "")}` : null,
+      }))
+    : [];
+
   if (!allExercises.length) return [];
 
   if (limit === null || limit === undefined) {
     return [...allExercises];
   }
 
-  const safeLimit = Math.max(1, Math.min(Number(limit) || allExercises.length, allExercises.length));
+  const safeLimit = Math.max(
+    1,
+    Math.min(Number(limit) || allExercises.length, allExercises.length)
+  );
   return allExercises.slice(0, safeLimit);
 }
 
