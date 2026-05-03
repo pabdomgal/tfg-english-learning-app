@@ -2,11 +2,22 @@ const KEY = "tfg_english_app_v1";
 
 const LEVELS = ["Principiante", "Intermedio", "Avanzado"];
 
-// criterio
-const LEVEL_CRITERIA = { minSessions: 3, minAccuracy: 60 };
+// criterio real del nivel:
+// solo cuenta el porcentaje final al terminar todas las lecciones del nivel
+const LEVEL_CRITERIA = { minAccuracy: 60 };
+
+function getSafeNumber(value, fallback = 0) {
+  const num = Number(value);
+  return Number.isFinite(num) ? num : fallback;
+}
 
 function createEmptyStats() {
-  return { sessions: 0, totalExercises: 0, correct: 0, wrong: 0 };
+  return {
+    sessions: 0,
+    totalExercises: 0,
+    correct: 0,
+    wrong: 0,
+  };
 }
 
 function createEmptyLevelProgress() {
@@ -17,6 +28,7 @@ function createEmptyLevelProgress() {
       correct: 0,
       wrong: 0,
       completed: false,
+      failed: false,
     },
     Intermedio: {
       sessions: 0,
@@ -24,6 +36,7 @@ function createEmptyLevelProgress() {
       correct: 0,
       wrong: 0,
       completed: false,
+      failed: false,
     },
     Avanzado: {
       sessions: 0,
@@ -31,41 +44,156 @@ function createEmptyLevelProgress() {
       correct: 0,
       wrong: 0,
       completed: false,
+      failed: false,
     },
   };
 }
 
 function createEmptyLessonIndexByLevel() {
-  return { Principiante: 0, Intermedio: 0, Avanzado: 0 };
+  return {
+    Principiante: 0,
+    Intermedio: 0,
+    Avanzado: 0,
+  };
 }
 
 function getNextLevel(current) {
-  const i = LEVELS.indexOf(current);
-  if (i === -1) return null;
-  return LEVELS[i + 1] || null;
+  const index = LEVELS.indexOf(current);
+  if (index === -1) return null;
+  return LEVELS[index + 1] || null;
 }
 
 function calcAccuracyPercent(levelStats) {
-  const total = levelStats.totalExercises || 0;
-  if (total === 0) return 0;
-  return (levelStats.correct / total) * 100;
+  const total = getSafeNumber(levelStats?.totalExercises, 0);
+  const correct = getSafeNumber(levelStats?.correct, 0);
+
+  if (total <= 0) return 0;
+  return (correct / total) * 100;
 }
 
-function isLevelCompleted(levelStats, criteria = LEVEL_CRITERIA) {
-  const sessionsOk = (levelStats.sessions || 0) >= criteria.minSessions;
-  const accOk = calcAccuracyPercent(levelStats) >= criteria.minAccuracy;
-  return sessionsOk && accOk;
+function isLastLessonOfLevel(user, levelName, lessonsCountByLevel) {
+  if (!levelName || !user?.lessonIndexByLevel) return false;
+
+  const currentIndex = getSafeNumber(user.lessonIndexByLevel[levelName], 0);
+  const totalLessons = getSafeNumber(lessonsCountByLevel?.[levelName], 0);
+
+  if (totalLessons <= 0) return false;
+
+  return currentIndex >= totalLessons - 1;
+}
+
+function isLevelCompletedByFinalAccuracy(levelStats, criteria = LEVEL_CRITERIA) {
+  return calcAccuracyPercent(levelStats) >= getSafeNumber(criteria?.minAccuracy, 60);
 }
 
 function ensureUserShape(user) {
   if (!user) return user;
 
   if (!user.stats) user.stats = createEmptyStats();
-  if (!user.history) user.history = [];
+  if (!Array.isArray(user.history)) user.history = [];
   if (!user.levelProgress) user.levelProgress = createEmptyLevelProgress();
   if (!user.lessonIndexByLevel) user.lessonIndexByLevel = createEmptyLessonIndexByLevel();
 
+  for (const level of LEVELS) {
+    if (!user.levelProgress[level]) {
+      user.levelProgress[level] = {
+        sessions: 0,
+        totalExercises: 0,
+        correct: 0,
+        wrong: 0,
+        completed: false,
+        failed: false,
+      };
+    } else {
+      user.levelProgress[level].sessions = getSafeNumber(
+        user.levelProgress[level].sessions,
+        0
+      );
+      user.levelProgress[level].totalExercises = getSafeNumber(
+        user.levelProgress[level].totalExercises,
+        0
+      );
+      user.levelProgress[level].correct = getSafeNumber(
+        user.levelProgress[level].correct,
+        0
+      );
+      user.levelProgress[level].wrong = getSafeNumber(
+        user.levelProgress[level].wrong,
+        0
+      );
+
+      if (typeof user.levelProgress[level].completed !== "boolean") {
+        user.levelProgress[level].completed = false;
+      }
+
+      if (typeof user.levelProgress[level].failed !== "boolean") {
+        user.levelProgress[level].failed = false;
+      }
+    }
+
+    if (typeof user.lessonIndexByLevel[level] !== "number") {
+      user.lessonIndexByLevel[level] = 0;
+    }
+  }
+
   return user;
+}
+
+function updateGlobalStats(user, session) {
+  user.stats.sessions += 1;
+  user.stats.totalExercises += session.total;
+  user.stats.correct += session.correct;
+  user.stats.wrong += session.wrong;
+}
+
+function updateLevelStats(user, levelName, session) {
+  if (!levelName || !user.levelProgress?.[levelName]) return;
+
+  const lp = user.levelProgress[levelName];
+  lp.sessions += 1;
+  lp.totalExercises += session.total;
+  lp.correct += session.correct;
+  lp.wrong += session.wrong;
+}
+
+function resolveLevelProgress(user, levelName, lessonsCountByLevel) {
+  if (!levelName || !user.levelProgress?.[levelName]) return;
+
+  const lp = user.levelProgress[levelName];
+  const reachedEndOfLevel = isLastLessonOfLevel(user, levelName, lessonsCountByLevel);
+
+  if (!reachedEndOfLevel) {
+    // todavía no ha terminado el nivel, solo avanza a la siguiente lección
+    user.lessonIndexByLevel[levelName] =
+      getSafeNumber(user.lessonIndexByLevel[levelName], 0) + 1;
+    return;
+  }
+
+  const passed = isLevelCompletedByFinalAccuracy(lp, LEVEL_CRITERIA);
+
+  if (passed) {
+    lp.completed = true;
+    lp.failed = false;
+
+    user.justCompletedLevel = levelName;
+
+    const nextLevel = getNextLevel(levelName);
+
+    // el nivel completado se reinicia visualmente al inicio por limpieza interna
+    user.lessonIndexByLevel[levelName] = 0;
+
+    if (nextLevel) {
+      user.level = nextLevel;
+      user.lessonIndexByLevel[nextLevel] = 0;
+    }
+
+    return;
+  }
+
+  // si no llega al 60%, repite automáticamente el mismo nivel
+  lp.completed = false;
+  lp.failed = true;
+  user.lessonIndexByLevel[levelName] = 0;
 }
 
 export function loadState() {
@@ -122,6 +250,8 @@ export function setUserLevel(level) {
 
   ensureUserShape(user);
   user.level = level;
+  user.lessonIndexByLevel[level] = 0;
+  delete user.justCompletedLevel;
 
   saveState(state);
   return { state, user };
@@ -151,14 +281,16 @@ export function saveSessionResult({
 
   ensureUserShape(user);
 
-  const total = results.length;
-  const correct = results.filter((r) => r.isCorrect).length;
+  const total = Array.isArray(results) ? results.length : 0;
+  const correct = Array.isArray(results)
+    ? results.filter((r) => r.isCorrect).length
+    : 0;
   const wrong = total - correct;
 
   const errorTagsCount = {};
   const wrongItems = [];
 
-  for (const r of results) {
+  for (const r of results || []) {
     if (!r.isCorrect) {
       wrongItems.push({
         exerciseId: r.exerciseId,
@@ -173,8 +305,8 @@ export function saveSessionResult({
         audio: r.audio ?? null,
       });
 
-      for (const t of r.tags ?? []) {
-        errorTagsCount[t] = (errorTagsCount[t] || 0) + 1;
+      for (const tag of r.tags ?? []) {
+        errorTagsCount[tag] = (errorTagsCount[tag] || 0) + 1;
       }
     }
   }
@@ -192,48 +324,12 @@ export function saveSessionResult({
 
   user.history.unshift(session);
 
-  user.stats.sessions += 1;
-  user.stats.totalExercises += total;
-  user.stats.correct += correct;
-  user.stats.wrong += wrong;
+  updateGlobalStats(user, session);
 
-  const lvl = levelName || user.level;
+  const currentLevel = levelName || user.level;
+  updateLevelStats(user, currentLevel, session);
 
-  if (lvl && user.levelProgress[lvl]) {
-    const lp = user.levelProgress[lvl];
-
-    lp.sessions += 1;
-    lp.totalExercises += total;
-    lp.correct += correct;
-    lp.wrong += wrong;
-
-    if (!lp.completed && isLevelCompleted(lp, LEVEL_CRITERIA)) {
-      lp.completed = true;
-
-      // Guardamos el nivel recién completado para mostrar diploma
-      user.justCompletedLevel = lvl;
-
-      const next = getNextLevel(lvl);
-      if (next) {
-        user.level = next;
-      }
-    }
-  }
-
-  if (
-    lvl &&
-    user.lessonIndexByLevel &&
-    typeof user.lessonIndexByLevel[lvl] === "number"
-  ) {
-    const current = user.lessonIndexByLevel[lvl];
-    const maxCount = lessonsCountByLevel?.[lvl];
-
-    if (typeof maxCount === "number" && maxCount > 0) {
-      user.lessonIndexByLevel[lvl] = Math.min(current + 1, maxCount - 1);
-    } else {
-      user.lessonIndexByLevel[lvl] = current + 1;
-    }
-  }
+  resolveLevelProgress(user, currentLevel, lessonsCountByLevel);
 
   saveState(state);
 }
