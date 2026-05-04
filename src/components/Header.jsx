@@ -226,7 +226,6 @@ export default function Header({ userName = "-", levelName = "-" }) {
           </div>
         </div>
       </div>
-
       <div
         className="app-header-right"
         style={{

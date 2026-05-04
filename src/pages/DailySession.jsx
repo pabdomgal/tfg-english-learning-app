@@ -1487,7 +1487,6 @@ export default function DailySession() {
                         </div>
                       </div>
                     )}
-
                     {exercise.type !== "multiple_choice" &&
                       exercise.type !== "fill_blank" &&
                       exercise.type !== "order_words" &&

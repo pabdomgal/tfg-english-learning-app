@@ -15,6 +15,5 @@ export default function ProtectedRoute({
   if (requireLevel && (!user || !user.level)) {
     return <Navigate to="/level" replace />;
   }
-
   return children;
 }
