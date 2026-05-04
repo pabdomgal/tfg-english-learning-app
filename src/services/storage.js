@@ -373,3 +373,27 @@ export function resetActiveUserProgress() {
   saveState(state);
   return true;
 }
+export function importProgressJSON(data) {
+  try {
+    if (!data?.user || !data?.appVersion) return false;
+
+    const state = getOrCreateState();
+    const importedUser = data.user;
+
+    ensureUserShape(importedUser);
+
+    const existingIndex = state.users.findIndex((u) => u.id === importedUser.id);
+
+    if (existingIndex !== -1) {
+      state.users[existingIndex] = importedUser;
+    } else {
+      state.users.push(importedUser);
+    }
+
+    state.activeUserId = importedUser.id;
+    saveState(state);
+    return true;
+  } catch {
+    return false;
+  }
+}

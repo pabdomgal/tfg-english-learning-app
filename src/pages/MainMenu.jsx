@@ -5,9 +5,11 @@ import {
   getActiveUser,
   exportProgressJSON,
   resetActiveUserProgress,
+  importProgressJSON,
 } from "../services/storage";
 import { downloadJSON } from "../services/download";
 import { theme, ui } from "../styles/theme";
+
 
 export default function MainMenu() {
   const nav = useNavigate();
@@ -26,6 +28,34 @@ export default function MainMenu() {
     if (!data) return;
     downloadJSON(`progreso_${user.name}.json`, data);
   }
+  
+  function handleImport() {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = ".json";
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        const ok = importProgressJSON(data);
+        if (ok) {
+          window.location.reload();
+        } else {
+          alert("El archivo no es válido.");
+        }
+      } catch {
+        alert("Error al leer el archivo.");
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
 
   function handleReset() {
     const ok = window.confirm(
@@ -431,6 +461,14 @@ export default function MainMenu() {
                     onClick={handleExport}
                   >
                     Exportar JSON
+                  </button>
+
+                  <button
+                    className="premium-button-hover"
+                    style={{ ...ui.ghostButton, borderRadius: theme.radius.md }}
+                    onClick={handleImport}
+                  >
+                    Importar JSON
                   </button>
                 </div>
               </div>
